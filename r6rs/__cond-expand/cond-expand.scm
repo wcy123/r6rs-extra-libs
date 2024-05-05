@@ -1,4 +1,4 @@
-(library (r6rs cond-expand _cond-expand)
+(library (r6rs __cond-expand cond-expand)
   (export check-library)
   (import (rnrs (6))
           (rnrs eval (6)))

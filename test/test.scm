@@ -1,6 +1,6 @@
 #!r6rs
 (import (rnrs (6))
-        (r6rs cond-expand cond-expand))
+        (r6rs cond-expand))
 
 (cond-expand
  [(library (ice-9 pretty-print))
