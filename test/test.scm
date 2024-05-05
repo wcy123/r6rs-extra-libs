@@ -1,6 +1,7 @@
 #!r6rs
 (import (rnrs (6))
-        (r6rs cond-expand))
+        (r6rs cond-expand)
+        (r6rs environ))
 
 (cond-expand
  [(library (ice-9 pretty-print))
@@ -20,3 +21,7 @@
      display))
 
 (display (pretty-print '(hello world)))
+
+(display "Hello ")
+(display (getenv "USER"))
+(display "\n")
