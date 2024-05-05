@@ -1,9 +1,9 @@
 #!r6rs
-(library (r6rs cond-expand cond-expand)
+(library (r6rs cond-expand)
   (export cond-expand use rename)
   (import (rnrs (6))
           (rnrs eval (6))
-          (for (r6rs cond-expand _cond-expand) expand))
+          (for (r6rs __cond-expand cond-expand) expand))
 
   (define-syntax rename (lambda (x) (syntax-violation 'rename "misplaced aux keyword" x)))
 
