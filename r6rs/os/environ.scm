@@ -1,5 +1,5 @@
 #!r6rs
-(library (r6rs environ)
+(library (r6rs os environ)
   (export getenv)
   (import (rnrs (6))
           (for (r6rs cond-expand) expand))

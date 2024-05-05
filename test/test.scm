@@ -1,7 +1,7 @@
 #!r6rs
 (import (rnrs (6))
         (r6rs cond-expand)
-        (r6rs environ))
+        (r6rs os environ))
 
 (cond-expand
  [(library (ice-9 pretty-print))
