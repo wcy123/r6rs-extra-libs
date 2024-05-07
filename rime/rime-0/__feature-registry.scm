@@ -25,7 +25,9 @@
      ))
 
   (define (check-feature feature-id)
-    (assq feature-id feature-registry))
+    (cond
+     [(assq feature-id feature-registry) => cdr]
+     [else #f]) )
 
   (define (check-library import-spec)
     (import-spec-exists? import-spec)))
