@@ -3,7 +3,7 @@
   (export cond-expand use rename)
   (import (rnrs (6))
           (rnrs eval (6))
-          (for (rime rime-0 __cond-expand cond-expand) expand))
+          (for (rime rime-0 __feature-registry) expand))
 
   (define-syntax rename (lambda (x) (syntax-violation 'rename "misplaced aux keyword" x)))
 

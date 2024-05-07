@@ -1,17 +1,22 @@
 #!r6rs
-(library (rime rime-0 __cond-expand cond-expand)
+(library (rime rime-0 __feature-registry)
   (export check-library check-feature)
   (import (rnrs (6))
           (rnrs eval (6)))
+
+  (define-syntax import-spec-exists?
+    (syntax-rules ()
+      [(_ import-spec)
+       (guard
+           (exn
+            [else #f])
+         (eval #t (environment import-spec)))]))
 
   (define-syntax define-feature-if-import-set
     (syntax-rules ()
       [(_ feature-id import-spec)
        (cons (quote feature-id)
-             (guard
-                 (exn
-                  [else #f])
-               (eval #t (environment (quote import-spec)))))]))
+             (import-spec-exists? 'import-spec))]))
 
   (define feature-registry
     (list
@@ -23,8 +28,4 @@
     (assq feature-id feature-registry))
 
   (define (check-library import-spec)
-    (let ([result (guard
-                      (error
-                       [else #f])
-                    (eval #t (environment import-spec)))])
-      result)))
+    (import-spec-exists? import-spec)))
