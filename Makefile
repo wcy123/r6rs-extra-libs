@@ -8,7 +8,7 @@ all:
 test: test_guile test_chez
 
 test_guile:
-	guile --r6rs -L . test/test.scm
+	guile --r6rs -L src test/test.scm
 
 test_chez:
-	$(SCHEME) --compile-imported-libraries --libdirs . --program test/test.scm
+	$(SCHEME) --compile-imported-libraries --libdirs src::build/chezscheme --program test/test.scm

@@ -1,8 +1,8 @@
 #!r6rs
-(library (r6rs os environ)
+(library (rime os environ)
   (export getenv)
   (import (rnrs (6))
-          (for (r6rs cond-expand) expand))
+          (for (rime rime-0 cond-expand) expand))
   (cond-expand
    [(library (guile))
     (use (guile) getenv)]
