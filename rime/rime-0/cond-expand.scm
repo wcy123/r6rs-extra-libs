@@ -64,7 +64,7 @@
          ]
         [(cond-expand (feature-id body ...) more-clauses ...)
          (check-feature (syntax->datum #'feature-id))
-         #'(cond-expand more-clauses ...)
+         #'(begin body ...)
          ]
 
         [(cond-expand (otherwise ...) more-clauses ...)

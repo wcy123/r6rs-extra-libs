@@ -1,7 +1,9 @@
+#!r6rs
 (library (rime rime-0 __cond-expand cond-expand)
   (export check-library check-feature)
   (import (rnrs (6))
           (rnrs eval (6)))
+
   (define-syntax define-feature-if-import-set
     (syntax-rules ()
       [(_ feature-id import-spec)
