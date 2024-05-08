@@ -58,8 +58,6 @@
         (let ([src (map cdr (syntax-source syn))])
           (if (fx=? 3 (length src))
               (begin
-                (display "rime/syntax/__syntax-location.scm:60:26:")
-                (display src)
                 (list (list-ref src 0)
                       (fx+ (list-ref src 1) 1)
                       (fx+ (list-ref src 2) 1)))
