@@ -2,8 +2,20 @@
 (library (test repl)
   (export main)
   (import (rnrs (6))
-          (rime unit-test __check)
+          (rime logging)
+          (rime unit-test)
           )
-  (define (main)
+  (define-test test:hello-world-1
     (CHECK main eq? (+ 1 1) 2)
-    (CHECK main eq? (+ 1 1) 3)))
+    (logger :debug "HELLO WORLD")
+    )
+
+  (define-test test:hello-world-2
+    (CHECK main eq? (+ 1 1) 2)
+    (logger :debug "HELLO WORLD")
+    )
+
+  (define (main)
+    (log-level 'info)
+    (run-all-tests)
+    ))

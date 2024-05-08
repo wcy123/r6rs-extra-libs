@@ -1,6 +1,6 @@
 #!r6rs
 (library (rime syntax __syntax-location)
-  (export syntax-location)
+  (export syntax-location syntax-location-as-string)
   (import (rnrs (6))
           (rnrs eval (6))
           (rime rime-0)
@@ -22,6 +22,7 @@
            (if field
                (apply record-get-field field args)
                #f))]))
+
     (define (get-column-line-number file-name position)
       (call-with-port (open-file-input-port file-name
                                             (file-options)
@@ -65,4 +66,19 @@
               (unknown-loc)))))]
    [else
     (define (syntax-location syn)
-      (list "not" 0 0))]))
+      (list "not" 0 0))])
+
+  (define (syntax-location-as-string syn)
+    (apply
+     (lambda (file line column)
+       (call-with-string-output-port
+        (lambda (port)
+          (display file port)
+          (display ":" port)
+          (display line port)
+          (display ":" port)
+          (display column port)
+          (display ":" port))))
+     (syntax-location syn)))
+  ;;
+  )
