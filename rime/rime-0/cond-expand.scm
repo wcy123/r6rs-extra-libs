@@ -1,9 +1,9 @@
 #!r6rs
-(library (r6rs cond-expand)
+(library (rime rime-0 cond-expand)
   (export cond-expand use rename)
   (import (rnrs (6))
           (rnrs eval (6))
-          (for (r6rs __cond-expand cond-expand) expand))
+          (for (rime rime-0 __feature-registry) expand))
 
   (define-syntax rename (lambda (x) (syntax-violation 'rename "misplaced aux keyword" x)))
 
@@ -62,7 +62,13 @@
          (check-library (syntax->datum #'import-spec))
          #'(begin body ...)
          ]
+        [(cond-expand (feature-id body ...) more-clauses ...)
+         (check-feature (syntax->datum #'feature-id))
+         #'(begin body ...)
+         ]
+
         [(cond-expand (otherwise ...) more-clauses ...)
          #'(cond-expand more-clauses ...)
          ]
+
         ))))
