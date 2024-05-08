@@ -2,7 +2,7 @@
 (library (rime unit-test __check)
   (export CHECK)
   (import (rnrs (6))
-          (rime logging logger))
+          (rime logging))
   (define-syntax CHECK
     (lambda (e)
       (syntax-case e ()

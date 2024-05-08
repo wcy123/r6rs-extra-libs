@@ -2,7 +2,7 @@
 (library (rime unit-test __define-test)
   (export define-test run-all-tests)
   (import (rnrs (6))
-          (rime logging logger)
+          (rime logging)
           (rime syntax __syntax-location)
           )
   (define _store '())
