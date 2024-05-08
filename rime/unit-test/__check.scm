@@ -6,7 +6,7 @@
   (define-syntax CHECK
     (lambda (e)
       (syntax-case e ()
-        [(_CHECK who f actual-expr expected-expr)
+        [(_CHECK f actual-expr expected-expr)
          #'(let ([expected-value expected-expr]
                [actual-value actual-expr]
                )
