@@ -7,5 +7,7 @@
         [(_ name ...)
          (begin
            (define-syntax name
-             (lambda (e) (syntax-violation 'name "misplaced auxiliary keyword" e))) ...)
+             (lambda (e)
+               (syntax-case e ()
+                 [(k . v)(syntax-violation 'name "misplaced auxiliary keyword" #'k #'v)]))) ...)
          ])))
