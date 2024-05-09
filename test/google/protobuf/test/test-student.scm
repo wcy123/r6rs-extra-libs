@@ -35,4 +35,5 @@
           (logger :info " student = " (student ':debug-string))
           ))))
   (define (main)
+    (log-level 'trace)
     (run-all-tests)))

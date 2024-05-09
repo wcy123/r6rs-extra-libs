@@ -3,7 +3,7 @@
   (import (rnrs (6))
           (rime loop)
           (rime protobuf private record)
-          (rime protobuf private display)
+          (rime logging)
           (rime protobuf private io)
           (rime protobuf private vec)
           (rime protobuf private message))
@@ -26,14 +26,13 @@
                              [decode-number (fxarithmetic-shift-right tag 3)]
                              [wired-type (fxand tag #x07)]
                              )
-                        (and #t (display-objects
-                                 "rime/protobuf/private/x-define-proto-deserialize.scm:36:41: "
+                        (and #t (logger :trace
                                  " deserialize " 'name
                                  " tag = " tag
                                  " decode-number = " decode-number
                                  " wired-type= = " wired-type
                                  " pos = (" pos " " (and (port-has-port-position? port) (port-position port)) ")"
-                                 "\n"))
+                                 ))
                         (case decode-number
                           deserialize-clauses ...
                           [else (raise

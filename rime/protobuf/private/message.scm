@@ -7,7 +7,7 @@
           )
   (import (rnrs (6))
           (rime loop)
-          (rime protobuf private display)
+          (rime logging)
           )
   (define the-meta-messages (make-eq-hashtable))
 
@@ -30,13 +30,13 @@
         [(:self)
          a-concrete-message]
         [(:debug-string)
-         (object-to-string a-concrete-message)]
+         (call-with-string-output-port
+          (lambda (port)
+            (put-datum port a-concrete-message)))]
         [(:<<)
          (when (null? args)
            (assertion-violation 'deserialize-message "wrong number of argument"))
-         (display-objects
-          "rime/protobuf/private/message.scm:39:27:"
-          " meta = " meta "\n")
+         (logger :debug " meta = " meta)
          ((protobuf-meta-message-deserialize meta) a-concrete-message (car args))]
         [else (assertion-violation 'protobuf-message-method
                                    "unknown method, valid methods: :debug-string :<< "
@@ -47,8 +47,7 @@
      (protobuf-message-meta a-concrete-message)))
 
   (define (register-message-ctor type a-protobuf-meta-message)
-    (display-objects "rime/protobuf/private/message.scm:54:22: "
-                     " add a new protobuf message type=" type "\n")
+    (logger :debug " add a new protobuf message type=" type)
     (hashtable-set! the-meta-messages (type->key type) a-protobuf-meta-message))
 
   (define (type->key type)
