@@ -78,7 +78,7 @@
          #'(logger :header ((:level-number . 300)
                             (:level-label . "INFO") (k . v) ...) exprs ...)]
 
-        [(logger :header ((k . v) ...) :info exprs ...)
+        [(logger :header ((k . v) ...) :warning exprs ...)
          #'(logger :header ((:level-number . 200)
                             (:level-label . "WARN") (k . v) ...) exprs ...)]
 
