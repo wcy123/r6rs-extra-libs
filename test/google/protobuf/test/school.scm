@@ -1,9 +1,9 @@
 #!r6rs
-(library (google protobuf test school)
+(library (test google protobuf test school)
   (export google-protobuf-test-school)
   (import (rnrs (6))
-          (skeme protobuf define-proto)
-          (skeme protobuf private message))
+          (rime protobuf define-proto)
+          (rime protobuf private message))
   (define-proto
     (library (google protobuf test school))
     (package (google protobuf test))
