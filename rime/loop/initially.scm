@@ -21,6 +21,10 @@
                 (map syntax->datum s-exprs))))]
             [(setup)
              (map list s-vars s-exprs)]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list)]
             [(loop-entry)

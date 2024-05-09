@@ -11,6 +11,7 @@
    :if :when :unless
    :initially
    :loop
+   :name
    :trace-parser
    :trace-codegen
 
@@ -80,6 +81,7 @@
   (define-keyword :of)
   (define-keyword :initially)
   (define-keyword :loop)
+  (define-keyword :name)
   (define-keyword :loop-level)
   (define-keyword :trace-parser)
   (define-keyword :trace-codegen)

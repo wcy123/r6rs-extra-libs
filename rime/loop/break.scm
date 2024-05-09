@@ -19,6 +19,10 @@
              ]
             [(setup)
              (list)]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list #'(break-flag #f))]
             [(loop-entry)

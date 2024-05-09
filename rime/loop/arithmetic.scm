@@ -23,6 +23,10 @@
              ]
             [(setup)
              (list)]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list #'[var init])]
             [(loop-entry)

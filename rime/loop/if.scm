@@ -13,6 +13,10 @@
               ":if " (syntax->datum #'expr))]
             [(setup)
              (list)]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list)]
             [(loop-entry)

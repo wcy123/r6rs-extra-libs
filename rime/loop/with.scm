@@ -17,6 +17,10 @@
               " :initially " (syntax->datum #'init))]
             [(setup)
              (list #'(var init weak))]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list)]
             [(loop-entry)

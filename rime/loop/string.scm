@@ -18,6 +18,10 @@
               (cons '~s (syntax->datum #'expr)))]
             [(setup)
              (list #'(expr-var expr))]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list #'[var-index offset])]
             [(loop-entry)

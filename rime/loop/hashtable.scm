@@ -36,11 +36,14 @@
               ":for "
               "(" (syntax->datum #'key) "  " (syntax->datum #'value) ")"
               " :in-hashtable " (syntax->datum #'expr))]
-            [(setup)
+            [(setup) (list)]
+            [(recur)
+             (list #'(expr-var expr))]
+            [(before-loop-begin)
              (remove #f
-                     (list #'(expr-var expr)
-                           #'(keys (hashtable-keys expr-var))
-                           #'(hash-size hash-size-expr)))]
+                     (list
+                      #'(keys (hashtable-keys expr-var))
+                      #'(hash-size hash-size-expr)))]
             [(init)
              (list #'[var-index 0])]
             [(loop-entry)
