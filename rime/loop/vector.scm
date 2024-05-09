@@ -16,6 +16,10 @@
               ":for " (syntax->datum #'var) " :in-vector " (syntax->datum #'expr))]
             [(setup)
              (list #'(expr-var expr))]
+            [(recur)
+             (list)]
+            [(before-loop-begin)
+             (list)]
             [(init)
              (list #'[var-index 0])]
             [(loop-entry)

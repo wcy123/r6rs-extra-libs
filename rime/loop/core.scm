@@ -12,6 +12,7 @@
   (import (rnrs (6))
           (rnrs mutable-pairs (6))
           (rime loop keywords)
+          (rime pretty-print)
           (for (rime loop plugin-store) expand))
 
   (define-syntax use-loop-plugin
@@ -172,6 +173,6 @@
         (display-objects
          "scheme/loop/core.scm:171:18: [" (syntax->datum original-e) "]"
          " expand to \n"
-         (syntax->datum code)
+         (pretty-print-to-string (syntax->datum code))
          "\n"))
       code)))

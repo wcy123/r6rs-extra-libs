@@ -10,6 +10,7 @@
           :if :when :unless
           :initially
           :loop
+          :name
           :trace-parser
           :trace-codegen
           )

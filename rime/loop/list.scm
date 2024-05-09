@@ -5,12 +5,12 @@
           (rime loop keywords))
 
   (define (make-for-as-list s-var s-expr in/on)
-    (let ([s-expr-var (new-var s-var "-in-list")])
-
-      #!r6rs
+    (let ([s-expr-recur-var (new-var s-var "-in-recur-list")]
+          [s-expr-loop-var (new-var s-var "-in-loop-list")])
       (lambda (method . args)
         (with-syntax ([var s-var]
-                      [expr-var s-expr-var]
+                      [expr-recur-var s-expr-recur-var]
+                      [expr-loop-var s-expr-loop-var]
                       [expr s-expr])
           (case method
             [(debug)
@@ -19,17 +19,21 @@
               " :in " (syntax->datum #'expr))]
             [(setup)
              (list)]
+            [(recur)
+             (list #'[expr-recur-var expr])]
+            [(before-loop-begin)
+             (list)]
             [(init)
-             (list #'[expr-var expr])]
+             (list #'[expr-loop-var expr-recur-var])]
             [(loop-entry)
-             (list (if (eq? in/on 'in) #'[var (car expr-var)] #'[var expr-var]))]
+             (list (if (eq? in/on 'in) #'[var (car expr-loop-var)] #'[var expr-loop-var]))]
             [(continue-condition)
-             #'(not (null? expr-var))]
+             #'(not (null? expr-loop-var))]
             [(loop-body)
              (let [(rest-body (car args))]
                rest-body)]
             [(step)
-             (list #'(cdr expr-var))]
+             (list #'(cdr expr-loop-var))]
             [(finally)
              '()]
             [else (syntax-violation #'make-for-as-list "never goes here" method)])))))

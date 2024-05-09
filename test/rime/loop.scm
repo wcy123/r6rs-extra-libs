@@ -54,7 +54,7 @@
       (hashtable-set! ht 3 "three")
       (CHECK equal?
              (list-sort (lambda (x y) (< (car x) (car y)))
-                        (loop :for (k v) :in-hashtable ht
+                        (loop :trace-codegen :for (k v) :in-hashtable ht
                               :collect (cons k v)))
              '((1 . "one") (2 . "two") (3 . "three")))
       (CHECK equal?
@@ -236,6 +236,17 @@
                (2 C "two" "Boy")
                (2 C "three" "Cat")
                ))
+      ))
+  (define-test
+    test-depth-first-travel
+    (let ()
+      (CHECK equal? (loop :trace-codegen
+                          :name recur
+                          :for i :in '(0 1 2 (1 11 (20 21 22) 12) 3 4 5)
+                          :do (recur i) :if (list? i)
+                          :collect i :unless (list? i)
+                          )
+             '(0 1 2 1 11 20 21 22 12 3 4 5))
       ))
   (define (main)
     (run-all-tests))
