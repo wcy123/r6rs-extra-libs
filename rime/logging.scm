@@ -1,6 +1,7 @@
 #!r6rs
 (library (rime logging)
   (export logger
+          object-to-string
           log-level
           :source-location
           :who

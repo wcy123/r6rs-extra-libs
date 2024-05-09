@@ -27,7 +27,7 @@
           )
   (import (rnrs (6))
           (rime loop)
-          (rime protobuf private display))
+          (rime logging))
 
   (define (r-proto-lib-name* r-proto)
     (syntax->datum (r-proto-lib-name r-proto)))

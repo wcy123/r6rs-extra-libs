@@ -1,7 +1,7 @@
 (library (rime protobuf private pretty-print)
   (export pretty-print)
   (import (rnrs (6))
-          (rime protobuf private display)
+          (rime logging)
           (rime protobuf private platform))
   (cond-expand
    [(library (ice-9 pretty-print))

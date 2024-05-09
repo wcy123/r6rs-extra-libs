@@ -11,7 +11,7 @@
                   (get-bytevector-n! $get-bytevector-n!)
                   (get-string-n $get-string-n))
           (rime loop)
-          (rime protobuf private display))
+          (rime logging))
 
   (define (sub-bytevector b start n)
     (let ((ret (make-bytevector n)))
@@ -50,12 +50,11 @@
              (valid-msb (fxand msb MSB_MASK))
              (msb-loss (fxand msb MSB_LOSS_MASK)) ;; we have 2 or 3 bits loss in accuracy
              )
-        (and #f (display-objects "rime/protobuf/private/io.scm:53:34: "
-                                 " acc = " acc
+        (and #f (logger :trace " acc = " acc
                                  " valid-msb = " valid-msb
                                  " msb-loss = " msb-loss
                                  " MSB_LOSS_MASK = " MSB_LOSS_MASK
-                                 "\n"))
+                              ))
         (let ([overflow? (cond
                           [(fx=? msb-loss 0) #f]
                           [(and (eq? msb-loss MSB_LOSS_MASK)
@@ -81,10 +80,9 @@
           :do (when (eof-object? value)
                 (assertion-violation
                  'read-varint "end of file"
-                 (object-to-string " acc = " acc
+                 ( " acc = " acc
                                    " n= " n)))
-          :do (and #f (display-objects "rime/protobuf/private/io.scm:86:32: "
-                                       " READ value = " value "\n"))
+          :do (and #f (logger :trace " READ value = " value))
           :do (when (fx>? n 63)
                 (assertion-violation
                  'read-varint "overflow!"
@@ -99,8 +97,7 @@
           :with new-acc :=  (if (fx<? n 56)
                                 (cons (fx+ new-value (car acc)) (cdr acc))
                                 (cons (car acc) (fx+ new-value (cdr acc))))
-          :do (and #f (display-objects
-                       "rime/protobuf/private/io.scm:103:16: "
+          :do (and #f (logger :trace
                        " pos = " pos
                        " acc = " acc
                        " n = " n
@@ -113,10 +110,7 @@
           :with acc := new-acc
           :break :if stop?
           :finally (let ([ret (return acc)])
-                     (and #f (display-objects "rime/protobuf/private/io.scm:116:39: RETURN"
-                                              " acc = " acc
-                                              " ret = " ret
-                                              "\n"))
+                     (and #f (logger :trace " acc = " acc " ret = " ret))
                      ret)
           ))
 
@@ -152,7 +146,12 @@
                            0)]
           [read-pos 0])
       (make-custom-binary-input-port
-       (object-to-string "(" port ")" len)
+       (call-with-string-output-port
+        (lambda (op)
+          (display "(" op)
+          (display port op)
+          (display ")" op)
+          (display len op)))
        ;; r!
        (lambda (bytevector start n)
          (let ((bytes-left (fxmax (fx- len (fx- (port-position port) current-pos)) 0)))

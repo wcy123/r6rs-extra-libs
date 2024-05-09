@@ -4,7 +4,7 @@
   (import (rnrs (6))
           (rime loop)
           (rime protobuf private vec)
-          (rime protobuf private test)
+          (rime unit-test)
           (rime protobuf private message)
           (rime logging)
           (test google protobuf test student))

@@ -7,7 +7,6 @@
           (rnrs bytevectors (6))
           (rime loop)
           (rime loop display)
-          (rime protobuf private test)
           (rime protobuf private record)
           (rime protobuf private message)
           (rime protobuf private vec))

@@ -8,8 +8,7 @@
           vec-append
           vec-equal?)
   (import (rename (rnrs (6)))
-          (rime  loop)
-          (rime  protobuf private display))
+          (rime  loop))
   (define-record-type (r-vector new-vector vec?)
     (fields (mutable data vec-data vec-data-set!)
             (mutable length vec-length vec-length-set!)
