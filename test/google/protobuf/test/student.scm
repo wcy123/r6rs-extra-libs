@@ -1,9 +1,9 @@
-(library (google protobuf test student)
+(library (test google protobuf test student)
   (export google-protobuf-test-student)
   (import
     (rnrs (6))
-    (skeme protobuf define-proto)
-    (google protobuf test school))
+    (rime protobuf define-proto)
+    (test google protobuf test school))
   (define google-protobuf-test-student-deps google-protobuf-test-school)
   (define-proto (library (google protobuf test student))
     (package (google protobuf test))
