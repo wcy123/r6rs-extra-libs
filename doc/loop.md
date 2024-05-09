@@ -128,10 +128,10 @@ so that above example can also be written as below.
 ```
 
 
-## Accumulate
+## Accumulate, `:collect` and `:append`
 
 ```scheme
-{:collect :append} <expr> [ :into <var> ]
+{:collect :append} <expr> {[:if cond-expr ]|[:unless cond-expr ]|[:when cond-expr ]} [ :into <var> ]
 ```
 
 As above examples have shown, a loop expression return a value, by default it is `(void)`.
@@ -170,7 +170,14 @@ it implies that `:initially := '()`, see also `:initially clauses`
 `:append <expr> :into <var>` and `:collect <expr> :into <var>`
 accumulate elements into a new variable other than `:return-value`.
 
-## Count
+`:if` , `:when` and `:unless` is used to filter out some values, e.g.
+
+```scheme
+(loop :for i :from 0 :to 10 :collect i :if (odd? i))
+;; => (1 3 5 7 9)
+```
+
+## `:count`
 
 ```
 :count [:into <var>]
@@ -190,7 +197,7 @@ the `<var>` instead of `:return-value`
 ## `:do` clause
 
 ```
-:do <expr>
+:do <expr> {[:if cond-expr ]|[:unless cond-expr ]|[:when cond-expr ]}
 ```
 
 `:do` clause is used to evaluate an expression with side effects.
@@ -201,6 +208,8 @@ the `<var>` instead of `:return-value`
       :append (list index ch)
       :do (display (list index ch))) ; => (0 a 1 b 2 c)
 ```
+
+The optional `:if` subclause can control whether evaluate `:do` clause or not.
 
 ## `:with` clause
 
@@ -383,6 +392,31 @@ more examples,
 ```
 
 
+## named loop
+
+
+A loop expression can be named with `:named` keyword, similiar to
+named `let` expression. The `(loop :name recur :for i :in '(1 2 3)
+...` loop structure is translate into a named `let` similiar to below.
+
+```scheme
+(let recur ([i '(1 2 3)])
+   (when (null? i)
+       ....
+      (recur (cdr i))))
+```
+
+
+so that we can implement `deep-flatten` as below,
+
+```scheme
+(loop :name recur
+      :for i :in '(0 1 2 (1 11 (20 21 22) 12) 3 4 5)
+      :do (recur i) :if (list? i)
+      :collect i :unless (list? i)
+)
+;; => (0 1 2 1 11 20 21 22 12 3 4 5)
+```
 
 # Some Practical Examples
 
