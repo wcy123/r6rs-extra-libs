@@ -15,7 +15,6 @@
           :trace-codegen
           )
   (import (rnrs (6))
-          (rime loop test)
           (rime loop keywords)
           (for (rime loop core) expand)
           (for (rime loop arithmetic) expand)

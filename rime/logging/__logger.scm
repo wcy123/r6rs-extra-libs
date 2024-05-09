@@ -1,6 +1,7 @@
 #!r6rs
 (library (rime logging __logger)
   (export logger
+          object-to-string
           log-level
           :source-location
           :who
@@ -78,7 +79,7 @@
          #'(logger :header ((:level-number . 300)
                             (:level-label . "INFO") (k . v) ...) exprs ...)]
 
-        [(logger :header ((k . v) ...) :info exprs ...)
+        [(logger :header ((k . v) ...) :warning exprs ...)
          #'(logger :header ((:level-number . 200)
                             (:level-label . "WARN") (k . v) ...) exprs ...)]
 
@@ -118,4 +119,18 @@
                      (display " " port)
                      (display exprs port) ...
                      (newline port)))))]
-        ))))
+        )))
+  (define (object-to-string . args)
+    (call-with-string-output-port
+     (lambda (port)
+       (let loop ([args args])
+         (unless (null? args)
+           (let ([arg (car args)])
+             (cond
+              [(and (pair? arg)
+                    (eq? '~s (car arg)))
+               (put-datum port (cdr arg))]
+              [(string? arg) (put-string port arg)]
+              [(char? arg) (put-char port arg)]
+              [else (put-datum port arg)])
+             (loop (cdr args)))))))))

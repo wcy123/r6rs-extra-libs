@@ -14,7 +14,7 @@ test: test.txt
 
 
 .PHONY: test.txt
-test.txt: $(patsubst test/%.scm, build/%.txt, $(wildcard test/*.scm test/**/*.scm))
+test.txt: $(patsubst test/%.scm, build/%.txt, $(wildcard test/*.scm test/*/*/*.scm test/*/*/*/*.scm))
 	@echo; echo "MAKE: ALL TEST OK"
 
 .PHONY: always
