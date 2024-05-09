@@ -1,11 +1,12 @@
-(library (test test-io)
-  (export test-io)
+#!r6rs
+(library (test rime protobuf private io)
+  (export main)
   (import (rnrs (6))
           (rnrs mutable-pairs (6))
-          (skeme loop)
-          (skeme protobuf private io)
-          (skeme protobuf private test)
-          (skeme protobuf private display))
+          (rime unit-test)
+          (rime logging)
+          (rime loop)
+          (rime protobuf private io))
   (define test-io '())
   (define (test-reader who reader bytevector expected-values)
     (call-with-port (open-bytevector-input-port bytevector)
@@ -17,14 +18,11 @@
               :with actual-value := (reader port)
               :with succeeded? :=  (equal? actual-value expected-value)
               :do (if (not succeeded?)
-                      (assertion-violation
-                       who
-                       (object-to-string
-                        expected-value " is expected "
-                        "but " actual-value " is given. pos=" pos "\n")
-                       )
-                      (display-objects "TEST READER: [" who "]" " OK! "
-                                       actual-value " == " expected-value "\n"))
+                      (logger :error :who who
+                              expected-value " is expected "
+                              "but " actual-value " is given. pos=" pos "\n")
+                      (logger :info "TEST READER: [" who "]" " OK! "
+                              actual-value " == " expected-value "\n"))
               :break :unless succeeded?
               ;; it is GOOD if eof is reached.
               :break succeeded? :if (port-eof? port)
@@ -95,4 +93,6 @@
              (cons 1 #vu8(#x02))
              (cons -2 #vu8(#x03))
              (cons 2 #vu8( #x04))
-             (cons 150 #vu8(#xac #x02)))))))
+             (cons 150 #vu8(#xac #x02))))))
+  (define (main)
+    (run-all-tests)))
