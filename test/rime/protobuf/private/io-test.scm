@@ -1,5 +1,5 @@
 #!r6rs
-(library (test rime protobuf private io)
+(library (test rime protobuf private io-test)
   (export main)
   (import (rnrs (6))
           (rnrs mutable-pairs (6))

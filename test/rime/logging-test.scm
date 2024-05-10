@@ -1,5 +1,5 @@
 #!r6rs
-(library (test rime logging)
+(library (test rime logging-test)
   (export main)
   (import (rnrs (6))
           (rime logging)

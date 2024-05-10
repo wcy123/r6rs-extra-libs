@@ -1,6 +1,5 @@
 #!r6rs
-#!r6rs
-(library (test rime protobuf private x-define-proto-record)
+(library (test rime protobuf private x-define-proto-record-test)
   (export main)
   (import (rnrs (6))
           (rime protobuf private x-define-proto-record)
