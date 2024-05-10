@@ -1,5 +1,5 @@
 #!r6rs
-(library (test google protobuf test test-student)
+(library (test google protobuf test student-test)
   (export main)
   (import (rnrs (6))
           (rime loop)

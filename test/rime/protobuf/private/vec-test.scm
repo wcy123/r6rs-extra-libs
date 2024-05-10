@@ -1,5 +1,5 @@
 #!r6rs
-(library (test rime protobuf private vec)
+(library (test rime protobuf private vec-test)
   (export main)
   (import (rnrs (6))
           (rime loop)

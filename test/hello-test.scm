@@ -1,5 +1,5 @@
 #!r6rs
-(library (test hello)
+(library (test hello-test)
   (export main)
   (import (rnrs (6))
           (rime unit-test)

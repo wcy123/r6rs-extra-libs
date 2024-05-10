@@ -23,5 +23,8 @@ jobs:
     - name: make
       run: make
 
-    - name: test
-      run: make test
+    - name: test with guile
+      run: make test-guile
+
+    - name: test with chez
+      run: make test-chez
