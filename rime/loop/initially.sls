@@ -2,6 +2,7 @@
 (library (rime loop initially)
   (export loop/core/initially)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-init-plugin s-vars s-exprs)
     (let ()
@@ -21,23 +22,7 @@
                 (map syntax->datum s-exprs))))]
             [(setup)
              (map list s-vars s-exprs)]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
-            [(init)
-             (list)]
-            [(loop-entry)
-             (list)]
-            [(continue-condition)
-             #t]
-            [(loop-body)
-             (car args)]
-            [(step)
-             '()]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-init-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-init-plugin method args)])))))
   (define (loop/core/initially e)
     (let loop ([e e]
                [vars '()]

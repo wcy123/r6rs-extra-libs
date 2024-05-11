@@ -2,7 +2,8 @@
 (library (rime loop arithmetic)
   (export loop/core/arithmetic)
   (import (rnrs (6))
-          (rime loop keywords))
+          (rime loop keywords)
+          (rime loop plugin))
   (define (build-for-as-arithmetic r-arithmetic)
     (lambda (method . args)
       (let ([s-end (for-as-arithmetic-s-end r-arithmetic)]
@@ -21,16 +22,8 @@
               " :by " (if less "<" ">")
               (if inclusive "=" ""))
              ]
-            [(setup)
-             (list)]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
             [(init)
              (list #'[var init])]
-            [(loop-entry)
-             (list)]
             [(continue-condition)
              (with-syntax ([compare (cond
                                      [(and less (not inclusive)) #'fx<?]
@@ -41,16 +34,9 @@
                ;; todo evaluate end only once
                (if s-end #'(compare var end) #t))
              ]
-            [(loop-body)
-             (with-syntax ([rest-body (car args)])
-               #'rest-body)]
             [(step)
              (list #'(fx+ var step))]
-            [(finally)
-             '()]
-            [else (syntax-violation
-                   'build-for-as-arithmetic
-                   "never goes here" method)])))))
+            [else (apply default-plugin #'build-for-as-arithmetic method args)])))))
 
   (define-record-type for-as-arithmetic
     (fields s-var
@@ -87,8 +73,7 @@
              (set! by 1)
              (set! parse-ok #t)
              (repeat #'(k :for i rest ...)))
-           ]
-          [(k :for i :downfrom expr1 rest ...)
+           ]          [(k :for i :downfrom expr1 rest ...)
            (begin
              (set! from #'expr1)
              (set! by -1)

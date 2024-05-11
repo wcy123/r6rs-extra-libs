@@ -23,10 +23,9 @@ define test_rule
 
 .PHONY: test-$(2)/$(1)
 test-$(2)/$(1):
-	$(3) test $(subst /, ,$(1))
+	echo "[ " test-$(2)/$(1)  " ] started "; $(3) test $(subst /, ,$(1))
 
 test-$2: test-$(2)/$(1)
-
 
 endef
 

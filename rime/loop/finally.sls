@@ -2,6 +2,7 @@
 (library (rime loop finally)
   (export loop/core/finally)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-finally-plugin s-expr s-return-value)
     (let ()
@@ -12,25 +13,11 @@
             [(debug)
              (object-to-string
               ":finally " (syntax->datum #'expr))]
-            [(setup)
-             (list)]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
-            [(init)
-             (list)]
-            [(loop-entry)
-             (list)]
-            [(continue-condition)
-             #t]
-            [(loop-body)
-             (car args)]
             [(step)
              '()]
             [(finally)
              (list #'(set! :return-value expr))]
-            [else (syntax-violation #'make-finally-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-finally-plugin method args)])))))
   (define (loop/core/finally e)
     (syntax-case e (:finally)
       [(k :finally expr rest ...)

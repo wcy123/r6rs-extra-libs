@@ -2,6 +2,7 @@
 (library (rime loop do)
   (export loop/core/do)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-do-plugin s-expr s-cond)
     (let ()
@@ -11,18 +12,6 @@
             [(debug)
              (object-to-string
               ":do " (syntax->datum #'expr))]
-            [(setup)
-             (list)]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
-            [(init)
-             (list)]
-            [(loop-entry)
-             (list)]
-            [(continue-condition)
-             #t]
             [(loop-body)
              (with-syntax ([cond-expr s-cond]
                            [(rest-body ...) (car args)])
@@ -30,11 +19,7 @@
                          (when cond-expr
                            expr)
                          rest-body ...)))]
-            [(step)
-             '()]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-do-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-do-plugin method args)])))))
   (define (loop/core/do original-e)
     (let loop ([e original-e])
       (syntax-case e (:do :if :when :unless)
