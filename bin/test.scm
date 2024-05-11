@@ -5,8 +5,8 @@
         (rime logging))
 (logger :info " TEST MODULE: " (cdr (command-line)))
 (let* ([import-spec
-        (loop :for arg :in (cdr (command-line))
-             :collect (string->symbol arg))]
+        (loop :trace-parser :for arg :in (cdr (command-line))
+              :collect (string->symbol arg))]
        [expr `(import ',import-spec)]
        [exception #t])
   (let [(loaded (guard (exn [else (set! exception exn)#f])
