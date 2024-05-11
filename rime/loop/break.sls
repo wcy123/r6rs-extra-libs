@@ -2,7 +2,9 @@
 (library (rime loop break)
   (export loop/core/break)
   (import (rnrs (6))
-          (rime loop keywords))
+          (rime loop keywords)
+          (rime loop plugin)
+          )
   (define-syntax empty-break-expr (lambda (x) (syntax-violation 'empty-break-expr "misplaced aux keyword" x)))
   (define (make-break-plugin s-return-value s-expr s-cond)
     (let ([break-flag  (car (generate-temporaries (list s-return-value)))])
@@ -17,16 +19,8 @@
               ":break " (syntax->datum #'expr)
               " :if " (syntax->datum #'cond))
              ]
-            [(setup)
-             (list)]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
             [(init)
              (list #'(break-flag #f))]
-            [(loop-entry)
-             (list)]
             [(continue-condition)
              #'(not break-flag)]
             [(loop-body)
@@ -48,9 +42,7 @@
                           (begin 0 rest-body ...))))))]
             [(step)
              (list #'break-flag)]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-break-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-break-plugin method args)])))))
 
   (define (loop/core/break e)
     (let loop ([e e])

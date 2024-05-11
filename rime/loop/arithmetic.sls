@@ -73,8 +73,7 @@
              (set! by 1)
              (set! parse-ok #t)
              (repeat #'(k :for i rest ...)))
-           ]
-          [(k :for i :downfrom expr1 rest ...)
+           ]          [(k :for i :downfrom expr1 rest ...)
            (begin
              (set! from #'expr1)
              (set! by -1)
