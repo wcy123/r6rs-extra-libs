@@ -3,6 +3,7 @@
   (export loop/core/collect)
   (import (rnrs (6))
           (rnrs mutable-pairs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-collect-plugin s-return-value s-var s-expr append? s-cond-expr)
 
@@ -33,16 +34,7 @@
            (list
             #'(var '() #t)
             #'(var-tail '()))]
-          [(recur)
-           (list)]
-          [(before-loop-begin)
-           (list)]
-          [(init)
-           (list)]
-          [(loop-entry)
-           (list)]
-          [(continue-condition)
-           #t]
+
           [(loop-body)
            (cons
             (with-syntax ([cond-expr s-cond-expr])
@@ -60,11 +52,7 @@
                                   (local-loop (cdr e))))))))))
             (car args))
            ]
-          [(step)
-           '()]
-          [(finally)
-           '()]
-          [else (syntax-violation #'make-break-plugin "never goes here" method)]))))
+          [else (apply default-plugin#'make-break-plugin method args)]))))
   (define (loop/core/collect e)
     (let loop ([e e])
       (syntax-case e (:collect :append :into :if :when :unless)
