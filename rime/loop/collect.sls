@@ -52,7 +52,7 @@
                                   (local-loop (cdr e))))))))))
             (car args))
            ]
-          [else (apply default-plugin#'make-break-plugin method args)]))))
+          [else (apply default-plugin #'make-collect-plugin method args)]))))
   (define (loop/core/collect e)
     (let loop ([e e])
       (syntax-case e (:collect :append :into :if :when :unless)
