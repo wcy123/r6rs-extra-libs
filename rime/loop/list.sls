@@ -2,6 +2,7 @@
 (library (rime loop list)
   (export loop/core/list)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
 
   (define (make-for-as-list s-var s-expr in/on)
@@ -17,26 +18,20 @@
              (object-to-string
               ":for " (syntax->datum #'var)
               " :in " (syntax->datum #'expr))]
-            [(setup)
-             (list)]
             [(recur)
              (list #'[expr-recur-var expr])]
-            [(before-loop-begin)
-             (list)]
             [(init)
              (list #'[expr-loop-var expr-recur-var])]
             [(loop-entry)
-             (list (if (eq? in/on 'in) #'[var (car expr-loop-var)] #'[var expr-loop-var]))]
+             (list (if (eq? in/on 'in)
+                       #'[var (car expr-loop-var)]
+                       #'[var expr-loop-var]))]
             [(continue-condition)
              #'(not (null? expr-loop-var))]
-            [(loop-body)
-             (let [(rest-body (car args))]
-               rest-body)]
             [(step)
              (list #'(cdr expr-loop-var))]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-for-as-list "never goes here" method)])))))
+            [else (apply default-plugin #'make-for-as-list method args)])))))
+
   (define (loop/core/list e)
     (syntax-case e (:for :in :on)
       [(k :for i :in expr1 rest ...)

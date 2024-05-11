@@ -2,6 +2,7 @@
 (library (rime loop hashtable)
   (export loop/core/hashtable)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-hashtable-plugin s-key s-value s-expr)
     (let ([s-expr-var (cond
@@ -36,7 +37,6 @@
               ":for "
               "(" (syntax->datum #'key) "  " (syntax->datum #'value) ")"
               " :in-hashtable " (syntax->datum #'expr))]
-            [(setup) (list)]
             [(recur)
              (list #'(expr-var expr))]
             [(before-loop-begin)
@@ -57,9 +57,7 @@
                (list #'(begin expr rest-body ...)))]
             [(step)
              (list #'(+ 1 var-index))]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-hashtable-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-hashtable-plugin method args)])))))
   (define (loop/core/hashtable e)
     (syntax-case e (:in-hashtable)
       [(k :for (key value) :in-hashtable expr rest ...)

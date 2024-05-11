@@ -2,6 +2,7 @@
 (library (rime loop string)
   (export loop/core/string)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-string-plugin s-var s-expr s-offset)
     (let ()
@@ -16,25 +17,17 @@
              (object-to-string
               ":for " (syntax->datum #'var) " :in-string "
               (cons '~s (syntax->datum #'expr)))]
-            [(setup)
-             (list #'(expr-var expr))]
             [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
+             (list #'(expr-var expr))]
             [(init)
              (list #'[var-index offset])]
             [(loop-entry)
              (list #'[var (string-ref expr-var var-index)])]
             [(continue-condition)
              #'(< var-index (string-length expr-var))]
-            [(loop-body)
-             (car args)]
             [(step)
              (list #'(+ 1 var-index))]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-string-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-string-plugin method args)])))))
 
   (define (loop/core/string e)
     (syntax-case e (:for  :in-string :offset)

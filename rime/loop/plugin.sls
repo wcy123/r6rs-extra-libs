@@ -19,9 +19,7 @@
       [(continue-condition)
        #t]
       [(loop-body)
-       (with-syntax ([(rest-body ...) (car args)])
-         (list #'(begin
-                   rest-body ...)))]
+       (car args)]
       [(step)
        (list)]
       [(finally)

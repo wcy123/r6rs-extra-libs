@@ -2,6 +2,7 @@
 (library (rime loop with)
   (export loop/core/with)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-with-plugin s-var s-expr s-init-value weak)
     (let ()
@@ -17,26 +18,12 @@
               " :initially " (syntax->datum #'init))]
             [(setup)
              (list #'(var init weak))]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
-            [(init)
-             (list)]
-            [(loop-entry)
-             (list)]
-            [(continue-condition)
-             #t]
             [(loop-body)
              (with-syntax ([(rest-body ...) (car args)])
                (list #'(begin
                          [set! var expr]
                          rest-body ...)))]
-            [(step)
-             '()]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-with-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-with-plugin method args)])))))
   (define (loop/core/with e)
     (let repeat ([e e]
                  [init #'(if #f 0)]

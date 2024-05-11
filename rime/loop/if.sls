@@ -2,6 +2,7 @@
 (library (rime loop if)
   (export loop/core/if)
   (import (rnrs (6))
+          (rime loop plugin)
           (rime loop keywords))
   (define (make-if-plugin s-expr)
     (let ()
@@ -11,29 +12,13 @@
             [(debug)
              (object-to-string
               ":if " (syntax->datum #'expr))]
-            [(setup)
-             (list)]
-            [(recur)
-             (list)]
-            [(before-loop-begin)
-             (list)]
-            [(init)
-             (list)]
-            [(loop-entry)
-             (list)]
-            [(continue-condition)
-             #t]
             [(loop-body)
              (with-syntax ([(rest-body ...) (car args)])
                (list #'(if expr
                            (begin
                              ;; support empty rest-body
                              0 rest-body ...))))]
-            [(step)
-             '()]
-            [(finally)
-             '()]
-            [else (syntax-violation #'make-if-plugin "never goes here" method)])))))
+            [else (apply default-plugin #'make-if-plugin method args)])))))
   (define (loop/core/if e)
     (syntax-case e (:if :when :unless)
       [(k :if expr rest ...)
