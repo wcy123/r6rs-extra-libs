@@ -3,11 +3,11 @@ CHEZ := $(shell which scheme || which chez || which chezscheme)
 RUN_CHEZ := $(CHEZ) --compile-imported-libraries --libdirs .::build/chezscheme --program
 RUN_GUILE := guile --r6rs -L .
 SHELL := /bin/bash
-TEST_CASES := $(patsubst test/%.scm, %, \
-	    $(wildcard test/*-test.scm \
-	               test/*/*-test.scm \
-	               test/*/*/*-test.scm \
-	               test/*/*/*/*-test.scm ))
+TEST_CASES := $(patsubst test/%.sls, %, \
+	    $(wildcard test/*-test.sls \
+	               test/*/*-test.sls \
+	               test/*/*/*-test.sls \
+	               test/*/*/*/*-test.sls ))
 
 
 all:
@@ -38,3 +38,7 @@ test-chez:
 $(foreach i,$(TEST_CASES),$(eval $(call test_rule,$(i),guile,$(RUN_GUILE) bin/test.scm)))
 test-guile:
 	echo "ALL TEST with GUILE OK"
+
+
+deps:
+	$(RUN_CHEZ) bin/dep.scm `find rime -iname '*.scm'`
