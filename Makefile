@@ -41,4 +41,4 @@ test-guile:
 
 
 deps:
-	$(RUN_CHEZ) bin/dep.scm `find rime -iname '*.scm'`
+	$(RUN_CHEZ) bin/dep.scm `find rime -iname '*.sls'`
