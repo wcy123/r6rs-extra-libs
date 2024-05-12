@@ -5,7 +5,7 @@
         (rime logging))
 (logger :info " TEST MODULE: " (cdr (command-line)))
 (let* ([import-spec
-        (loop :trace-parser :for arg :in (cdr (command-line))
+        (loop :for arg :in (cdr (command-line))
               :collect (string->symbol arg))]
        [expr `(import ',import-spec)]
        [exception #t])
