@@ -6,8 +6,8 @@
           (rime loop keywords))
 
   (define (make-for-as-list s-var s-expr in/on)
-    (let ([s-expr-recur-var (new-sym s-var "-in-recur-list")]
-          [s-expr-loop-var (new-sym s-var "-in-loop-list")])
+    (let ([s-expr-recur-var (new-sym s-var "list:-in-recur-list")]
+          [s-expr-loop-var (new-sym s-var "list:-in-loop-list")])
       (lambda (method . args)
         (with-syntax ([var s-var]
                       [expr-recur-var s-expr-recur-var]
