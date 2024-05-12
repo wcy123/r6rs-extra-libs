@@ -34,14 +34,18 @@
         [(level)
          (let ([old-level the-log-level])
            (set! the-log-level
-                 (case level
-                   [(trace) 500]
-                   [(debug) 400]
-                   [(info) 300]
-                   [(warning) 200]
-                   [(error) 100]
-                   [(critical) 0]
-                   ))
+                 (cond
+                  [(symbol? level)
+                   (case level
+                     [(trace) 500]
+                     [(debug) 400]
+                     [(info) 300]
+                     [(warning) 200]
+                     [(error) 100]
+                     [(critical) 0]
+                     )]
+                  [(fixnum? level)
+                   (* level 100)]))
            old-level)])))
 
   (define-syntax logger
