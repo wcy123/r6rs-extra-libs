@@ -14,7 +14,8 @@
    :name
    :trace-parser
    :trace-codegen
-
+   :join-string
+   :seperator
    new-var
    new-sym
    keyword?
@@ -85,6 +86,8 @@
   (define-keyword :loop-level)
   (define-keyword :trace-parser)
   (define-keyword :trace-codegen)
+  (define-keyword :join-string)
+  (define-keyword :seperator)
 
   (define (new-var var suffix)
     (datum->syntax var (string->symbol
@@ -144,6 +147,8 @@
              (syntax :loop-level)
              (syntax :trace-parser)
              (syntax :trace-codegen)
+             (syntax :join-string)
+             (syntax :seperator)
              )))
 
   (define (one-of e ids)
@@ -215,10 +220,19 @@
 
   (define (new-sym e hint)
     (cond
+     [(and (identifier? e) (eq? hint #f))
+      (car (generate-temporaries (list e)))]
+
+     [(and (identifier? e) (string? hint))
+      (datum->syntax e (string->symbol
+                        (string-append
+                         (symbol->string (syntax->datum e))
+                         "-" hint)))]
      [(string? hint)
       (car (generate-temporaries (list (loop-get-k e))))]
      [(symbol? hint)
-      (datum->syntax (loop-get-k e) hint)])
+      (datum->syntax (loop-get-k e) hint)]
+     [else (raise "ERROR")])
     )
 
   (define (loop-return-value e)

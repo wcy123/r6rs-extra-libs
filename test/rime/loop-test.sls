@@ -260,6 +260,23 @@
                           )
              '(1 2 3 4))
       ))
+
+  (define-test
+    test-basic-join-string
+    (let ()
+      (CHECK equal? (loop :trace-codegen
+                          :trace-parser
+                          :for i :in '(1 2 3)
+                          :join-string i
+                          )
+             "123")
+      (CHECK equal? (loop :trace-codegen
+                          :trace-parser
+                          :for i :in '(1 2 3)
+                          :join-string i :seperator ","
+                          )
+             "1,2,3")
+      ))
   (define (main)
     (run-all-tests))
   )
