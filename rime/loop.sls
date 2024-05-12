@@ -13,6 +13,8 @@
           :name
           :trace-parser
           :trace-codegen
+          :join-string
+          :seperator
           )
   (import (rnrs (6))
           (rime loop keywords)

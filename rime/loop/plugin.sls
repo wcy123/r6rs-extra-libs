@@ -22,6 +22,8 @@
        (car args)]
       [(step)
        (list)]
+      [(pre-finally)
+       (list)]
       [(finally)
        (list)]
       [(is-finally?)

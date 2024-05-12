@@ -20,6 +20,7 @@
           (rime loop break)
           (rime loop finally)
           (rime loop initially)
+          (rime loop join-string)
           )
 
   (define (all-plugins)
@@ -35,7 +36,8 @@
           (cons 'loop/core/break loop/core/break)
           (cons 'loop/core/finally loop/core/finally)
           (cons 'loop/core/initially loop/core/initially)
-          (cons 'loop/core/loop loop/core/loop)))
+          (cons 'loop/core/loop loop/core/loop)
+          (cons 'loop/core/join-string loop/core/join-string)))
 
   (define (parse-loop-clauses original-e)
     (let ([clauses '()])
@@ -166,9 +168,11 @@
         (loop (cons (car clauses) pre-clauses)
               (cdr clauses))])))
 
-  (define (loop-codegen-epilogue k clauses)
+  (define (loop-codegen-epilogue k clauses epilogue-clauses)
     (with-syntax ([(finally-block ...)
-                   (apply append (map (lambda (clause) (clause 'finally)) clauses))]
+                   (append
+                    (apply append (map (lambda (clause) (clause 'pre-finally)) clauses))
+                    (apply append (map (lambda (clause) (clause 'finally)) epilogue-clauses)))]
                   [:return-value (loop-return-value k)])
       #'(begin finally-block ... :return-value)))
 
@@ -176,11 +180,9 @@
     (let ([code
            (with-syntax
                ([(prologue-binding ...) (codegen-prologue-binding k clauses)]
-                [(inner-body ...) (loop-codegen-body clauses)]
-                [epilogue (loop-codegen-epilogue k clauses)])
+                [(inner-body ...) (loop-codegen-body clauses)])
              #'(let* (prologue-binding ...)
-                 inner-body ...
-                 epilogue))])
+                 inner-body ...))])
       (when (loop-trace-codegen k)
         (display-objects
          "rime/loop/core.sls:173:10: [" (syntax->datum original-e) "]"
@@ -244,7 +246,7 @@
                        [repeat-label (new-sym s-k "LOOP-REPEAT")]
                        [recur-label s-recur-name]
                        [(inner-body ...) (loop-codegen-body clauses)]
-                       [epilogue (loop-codegen-epilogue s-k epilogue-clauses)])
+                       [epilogue (loop-codegen-epilogue s-k clauses epilogue-clauses)])
                     #'(let recur-label ([recur-binding-vars recur-binding-values] ...)
                         (let* ([before-loop-begin-vars before-loop-begin-values] ...)
                           (let repeat-label ([binding-vars binding-values] ...)
@@ -258,6 +260,8 @@
                 [(step)
                  (list)]
                 [(is-finally?) #f]
+                [(pre-finally)
+                 (list)]
                 [(finally)
                  (list)]
                 [else (syntax-violation #'make-loop-plugin "never goes here" method)])))))))

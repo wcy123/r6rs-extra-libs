@@ -9,8 +9,8 @@
       (lambda (method . args)
         (with-syntax ([expr s-expr]
                       [var s-var]
-                      [expr-var (new-var s-var "-vector-expr")]
-                      [var-index (new-var s-var "-vector-index")])
+                      [expr-var (new-sym s-var "-vector-expr")]
+                      [var-index (new-sym s-var "-vector-index")])
           (case method
             [(debug)
              (object-to-string
