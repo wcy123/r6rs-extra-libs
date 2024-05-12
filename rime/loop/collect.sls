@@ -8,7 +8,7 @@
   (define (make-collect-plugin s-var s-expr append? s-cond-expr)
     (lambda (method . args)
       (with-syntax ([var s-var]
-                    [var-tail (new-sym s-var "-tail")]
+                    [var-tail (new-sym s-var "collect:tail")]
                     [expr s-expr])
         (define (gen-collect-body a-expr)
           (with-syntax ([expr a-expr])
