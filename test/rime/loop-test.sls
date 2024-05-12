@@ -276,6 +276,24 @@
                           :join-string i :seperator ","
                           )
              "1,2,3")
+      (CHECK equal? (loop :trace-codegen
+                          :trace-parser
+                          :for i :in '(1 2 3)
+                          :for j :in '(a b c)
+                          :join-string i :seperator ","
+                          :join-string j :seperator ":"
+                          )
+             "1,a:2,b:3,c")
+
+      (CHECK equal? (loop :trace-codegen
+                          :trace-parser
+                          :for i :in '(1 2 3)
+                          :for j :in '(a b c)
+                          :join-string i :seperator "," :into ic
+                          :join-string j :seperator ":" :into jc
+                          :finally (cons ic jc)
+                          )
+             (cons "1,2,3" "a:b:c"))
       ))
   (define (main)
     (run-all-tests))
