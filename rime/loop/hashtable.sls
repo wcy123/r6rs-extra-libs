@@ -6,20 +6,20 @@
           (rime loop keywords))
   (define (make-hashtable-plugin s-key s-value s-expr)
     (let ([s-expr-var (cond
-                       [s-key  (new-var s-key "-expr-var")]
-                       [s-value  (new-var s-value "-expr-value")]
+                       [s-key  (new-sym s-key "-expr-var")]
+                       [s-value  (new-sym s-value "-expr-value")]
                        [else (syntax-violation
                               'make-hashtable-plugin
                               "either key or value must be specified"
                               #'(s-key s-value s-expr))])]
           [s-keys
-           (if s-key (new-var s-key "-keys-var") #f)]
+           (if s-key (new-sym s-key "-keys-var") #f)]
           [s-values
-           (if s-value (new-var s-value "-values-var") #f)]
+           (if s-value (new-sym s-value "-values-var") #f)]
           [s-var-index
-           (new-var (or s-key s-value) "-index")]
+           (new-sym (or s-key s-value) "-index")]
           [s-hash-size
-           (new-var (or s-key s-value) "-hash-size")])
+           (new-sym (or s-key s-value) "-hash-size")])
       (lambda (method . args)
         (with-syntax ([key s-key]
                       [value s-value]

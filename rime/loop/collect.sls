@@ -5,12 +5,10 @@
           (rnrs mutable-pairs (6))
           (rime loop plugin)
           (rime loop keywords))
-  (define (make-collect-plugin s-return-value s-var s-expr append? s-cond-expr)
-
+  (define (make-collect-plugin s-var s-expr append? s-cond-expr)
     (lambda (method . args)
       (with-syntax ([var s-var]
-                    [return-value s-return-value]
-                    [var-tail (new-var s-var "-tail")]
+                    [var-tail (new-sym s-var "-tail")]
                     [expr s-expr])
         (define (gen-collect-body a-expr)
           (with-syntax ([expr a-expr])
@@ -53,53 +51,55 @@
             (if (null? args) '() (car args)))
            ]
           [else (apply default-plugin #'make-collect-plugin method args)]))))
-  (define (loop/core/collect e)
-    (let loop ([e e])
+  (define (loop/core/collect original-e)
+    (let loop ([e original-e])
       (syntax-case e (:collect :append :into :if :when :unless)
-        [(k :collect expr :if cond-expr :into var rest ...)
-         (identifier? #'var)
-         (values (make-collect-plugin (loop-return-value #'k) #'var #'expr #f #'cond-expr)
-                 #'(k rest ...))
-         ]
-        [(k :collect expr :if cond-expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :collect expr :if cond-expr :into return-value rest ...)))
-         ]
-        [(k :collect expr :when cond-expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :collect expr :if cond-expr :into return-value rest ...)))
-         ]
-        [(k :collect expr :unless cond-expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :collect expr :if (not cond-expr) :into return-value rest ...)))
-         ]
         [(k :collect expr rest ...)
-         (loop #'(k :collect expr :if #t rest ...))
+         (loop #'(k (:collect #f) expr rest ...))
          ]
-        [(k :append expr :if cond-expr :into var rest ...)
-         (identifier? #'var)
-         (values (make-collect-plugin (loop-return-value #'k) #'var #'expr #t #'cond-expr)
+
+        [(k :append expr rest ...)
+         (loop #'(k (:collect #t) expr rest ...))
+         ]
+
+        [(k (:collect append?) expr rest ...)
+         (loop #'(k (:collect append? expr) rest ...))
+         ]
+
+        [(k (:collect append? expr) :if cond-expr rest ...)
+         (loop #'(k (:collect append? expr :if cond-expr) rest ...))
+         ]
+
+        [(k (:collect append? expr) :when cond-expr rest ...)
+         (loop #'(k (:collect append? expr :if cond-expr) rest ...))
+         ]
+
+        [(k (:collect append? expr) :unless cond-expr rest ...)
+         (loop #'(k (:collect append? expr :if (not cond-expr)) rest ...))
+         ]
+
+        [(k (:collect append? expr) rest ...)
+         (loop #'(k (:collect append? expr :if #t) rest ...))
+         ]
+
+        [(k (:collect append? expr :if cond-expr) :into var rest ...)
+         (loop #'(k (:collect append? expr :if cond-expr :into var) rest ...))
+         ]
+
+        [(k (:collect append? expr :if cond-expr) rest ...)
+         (with-syntax ([return-value (loop-return-value #'k)])
+           (loop #'(k (:collect append? expr :if cond-expr :into return-value) rest ...)))
+         ]
+
+        [(k (:collect append? expr :if cond-expr :into var) rest ...)
+         (values (make-collect-plugin
+                  #'var #'expr
+                  (syntax->datum #'append?)
+                  #'cond-expr)
                  #'(k rest ...))
          ]
-        [(k :append expr :if cond-expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :append expr :if cond-expr :into return-value rest ...)))
-         ]
-        [(k :append expr :when cond-expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :append expr :if cond-expr :into return-value rest ...)))
-         ]
-        [(k :append expr :unless cond-expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :append expr :if (not cond-expr) :into return-value rest ...)))
-         ]
-        [(k :append expr rest ...)
-         (loop #'(k :append expr :if #t rest ...))
-         ]
-        [(k :append expr rest ...)
-         (with-syntax ([return-value (loop-return-value #'k)])
-           (loop #'(k :append expr :into return-value rest ...)))
-         ]
+
         [(k rest ...)
          (values #f e)
-         ]))))
+         ]
+        ))))

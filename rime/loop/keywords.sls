@@ -16,7 +16,6 @@
    :trace-codegen
    :join-string
    :seperator
-   new-var
    new-sym
    keyword?
    one-of
@@ -89,11 +88,6 @@
   (define-keyword :join-string)
   (define-keyword :seperator)
 
-  (define (new-var var suffix)
-    (datum->syntax var (string->symbol
-                        (string-append
-                         (symbol->string (syntax->datum var))
-                         suffix))))
   (define (keyword? e)
     (exists (lambda (keyword)
               (and (identifier? e)

@@ -10,8 +10,8 @@
         (with-syntax ([expr s-expr]
                       [var s-var]
                       [offset s-offset]
-                      [expr-var (new-var s-var "-string-expr")]
-                      [var-index (new-var s-var "-string-index")])
+                      [expr-var (new-sym s-var "-string-expr")]
+                      [var-index (new-sym s-var "-string-index")])
           (case method
             [(debug)
              (object-to-string
