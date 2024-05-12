@@ -31,24 +31,15 @@
              (loop-codegen s-k clauses original-e))]
           [(k :trace-parser clauses ...)
            (identifier? #'k)
-           (begin
-             (when (or #t)
-               (display-objects "rime/loop.sls:36:33: [" (syntax->datum #'(k clauses ...)) "]" "\n"))
-             (loop #'(k clauses ...) #t trace-codegen))
+           (loop #'(k clauses ...) #t trace-codegen)
            ]
           [(k :trace-codegen clauses ...)
            (identifier? #'k)
-           (begin
-             (when (or #t)
-               (display-objects "rime/loop.sls:43:33: [" (syntax->datum #'(k clauses ...)) "]" "\n"))
-             (loop #'(k clauses ...) trace-parser #t))
+           (loop #'(k clauses ...) trace-parser #t)
            ]
           [(k clauses ...)
            (identifier? #'k)
            (with-syntax ([k (loop-init-props #'k trace-parser trace-codegen)])
-             (begin
-               (when (or #t)
-                 (display-objects "rime/loop.sls:51:35: [" (syntax->datum #'(k clauses ...)) "]" "\n"))
-               (loop #'(k (:loop clauses ...)) trace-parser trace-codegen)))
+             (loop #'(k (:loop clauses ...)) trace-parser trace-codegen))
            ]
           )))))

@@ -41,3 +41,9 @@ test-guile:
 
 deps:
 	$(RUN_CHEZ) bin/dep.scm `find rime -iname '*.sls'`
+
+test-cases:
+	@echo "TEST CASES: "; for i in $(TEST_CASES); do \
+     echo -n  "     test-guile/"$$i;  \
+     echo  "     test-chez/"$$i;  \
+     done

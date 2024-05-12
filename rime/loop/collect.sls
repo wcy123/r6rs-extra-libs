@@ -35,7 +35,7 @@
             #'(var '() #t)
             #'(var-tail '()))]
 
-          [(loop-body)
+          [(loop-body finally)
            (cons
             (with-syntax ([cond-expr s-cond-expr])
               (if (not append?)
@@ -50,7 +50,7 @@
                                 (let ([tmp (car e)])
                                   inner-body
                                   (local-loop (cdr e))))))))))
-            (car args))
+            (if (null? args) '() (car args)))
            ]
           [else (apply default-plugin #'make-collect-plugin method args)]))))
   (define (loop/core/collect e)

@@ -154,8 +154,21 @@
           (begin
             ((car clauses) 'loop-body (loop (cdr clauses)))))))
 
+  (define (partition-epilogue-clauses clauses)
+    (let loop ([pre-clauses '()]
+               [clauses clauses])
+      (cond
+       [(null? clauses)
+        (values (reverse pre-clauses) clauses)]
+       [((car clauses) 'is-finally?)
+        (values (reverse pre-clauses) clauses)]
+       [else
+        (loop (cons (car clauses) pre-clauses)
+              (cdr clauses))])))
+
   (define (loop-codegen-epilogue k clauses)
-    (with-syntax ([(finally-block ...) (apply append (map (lambda (clause) (clause 'finally)) clauses))]
+    (with-syntax ([(finally-block ...)
+                   (apply append (map (lambda (clause) (clause 'finally)) clauses))]
                   [:return-value (loop-return-value k)])
       #'(begin finally-block ... :return-value)))
 
@@ -194,58 +207,60 @@
 
   (define (make-loop-plugin s-k s-loop-expr s-recur-name)
     (let-values ([(clauses s-next-k) (parse-loop-clauses s-loop-expr)])
-      (let ([loop-level (loop-level s-k)])
-        (lambda (method . args)
-          (with-syntax ()
-            (case method
-              [(debug)
-               (display-loop-plugin loop-level s-loop-expr clauses)]
-              [(setup)
-               (apply append (map (lambda (c) (c 'setup)) clauses))]
-              [(recur)
-               (list)]
-              [(before-loop-begin)
-               (list)]
-              [(init)
-               (list)]
-              [(loop-entry)
-               (list)]
-              [(continue-condition)
-               #t]
-              [(loop-body)
-               (cons
-                (with-syntax
-                    ([([recur-binding-vars recur-binding-values] ...)
-                      (apply append (map (lambda (f) (f 'recur)) clauses))]
-                     [([before-loop-begin-vars before-loop-begin-values] ...)
-                      (apply append (map (lambda (f) (f 'before-loop-begin)) clauses))]
-                     [([binding-vars binding-values] ...)
-                      (apply append (map (lambda (f) (f 'init)) clauses))]
-                     [bindings-on-loop-begin
-                      (apply append (map (lambda (f) (f 'loop-entry)) clauses))]
-                     [(continue-condition ...)
-                      (remove #t (map (lambda (f) (f 'continue-condition)) clauses))]
-                     [(continue-value ...)
-                      (apply append (map (lambda (f) (f 'step)) clauses))]
-                     [repeat-label (new-sym s-k "LOOP-REPEAT")]
-                     [recur-label s-recur-name]
-                     [(inner-body ...) (loop-codegen-body clauses)]
-                     [epilogue (loop-codegen-epilogue s-k clauses)])
-                  #'(let recur-label ([recur-binding-vars recur-binding-values] ...)
-                      (let* ([before-loop-begin-vars before-loop-begin-values] ...)
-                        (let repeat-label ([binding-vars binding-values] ...)
-                          (if (and continue-condition ...)
-                              (let* bindings-on-loop-begin
-                                inner-body ...
-                                (repeat-label continue-value ...)))))
-                      epilogue))
-                (car args))
-               ]
-              [(step)
-               (list)]
-              [(finally)
-               (list)]
-              [else (syntax-violation #'make-loop-plugin "never goes here" method)]))))))
+      (let-values ([(clauses epilogue-clauses) (partition-epilogue-clauses clauses)])
+        (let ([loop-level (loop-level s-k)])
+          (lambda (method . args)
+            (with-syntax ()
+              (case method
+                [(debug)
+                 (display-loop-plugin loop-level s-loop-expr clauses)]
+                [(setup)
+                 (apply append (map (lambda (c) (c 'setup)) clauses))]
+                [(recur)
+                 (list)]
+                [(before-loop-begin)
+                 (list)]
+                [(init)
+                 (list)]
+                [(loop-entry)
+                 (list)]
+                [(continue-condition)
+                 #t]
+                [(loop-body)
+                 (cons
+                  (with-syntax
+                      ([([recur-binding-vars recur-binding-values] ...)
+                        (apply append (map (lambda (f) (f 'recur)) clauses))]
+                       [([before-loop-begin-vars before-loop-begin-values] ...)
+                        (apply append (map (lambda (f) (f 'before-loop-begin)) clauses))]
+                       [([binding-vars binding-values] ...)
+                        (apply append (map (lambda (f) (f 'init)) clauses))]
+                       [bindings-on-loop-begin
+                        (apply append (map (lambda (f) (f 'loop-entry)) clauses))]
+                       [(continue-condition ...)
+                        (remove #t (map (lambda (f) (f 'continue-condition)) clauses))]
+                       [(continue-value ...)
+                        (apply append (map (lambda (f) (f 'step)) clauses))]
+                       [repeat-label (new-sym s-k "LOOP-REPEAT")]
+                       [recur-label s-recur-name]
+                       [(inner-body ...) (loop-codegen-body clauses)]
+                       [epilogue (loop-codegen-epilogue s-k epilogue-clauses)])
+                    #'(let recur-label ([recur-binding-vars recur-binding-values] ...)
+                        (let* ([before-loop-begin-vars before-loop-begin-values] ...)
+                          (let repeat-label ([binding-vars binding-values] ...)
+                            (if (and continue-condition ...)
+                                (let* bindings-on-loop-begin
+                                  inner-body ...
+                                  (repeat-label continue-value ...)))))
+                        epilogue))
+                  (car args))
+                 ]
+                [(step)
+                 (list)]
+                [(is-finally?) #f]
+                [(finally)
+                 (list)]
+                [else (syntax-violation #'make-loop-plugin "never goes here" method)])))))))
 
   (define (loop/core/loop original-e)
     (let loop ([e original-e])
