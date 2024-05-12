@@ -248,6 +248,18 @@
                           )
              '(0 1 2 1 11 20 21 22 12 3 4 5))
       ))
+  (define-test
+    test-collect-at-finally
+    (let ()
+      (CHECK equal? (loop :trace-codegen
+                          :for i :in '(1 2 3)
+                          :with x := (fx+ i 1)
+                          :collect i
+                          :finally
+                          :collect x
+                          )
+             '(1 2 3 4))
+      ))
   (define (main)
     (run-all-tests))
   )
