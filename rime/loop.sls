@@ -15,6 +15,10 @@
           :trace-codegen
           :join-string
           :seperator
+          :expr
+          :list
+          :hash-table
+          :make-hash-table
           )
   (import (rnrs (6))
           (rime loop keywords)

@@ -19,9 +19,11 @@
    :expr
    :list
    :hash-table
+   :make-hash-table
    assq-id
    new-sym
    keyword?
+   keyword=?
    one-of
    display-objects ;; for debugging purpose
    object-to-string
@@ -94,6 +96,7 @@
   (define-keyword :expr)
   (define-keyword :list)
   (define-keyword :hash-table)
+  (define-keyword :make-hash-table)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -153,7 +156,13 @@
              (syntax :expr)
              (syntax :list)
              (syntax :hash-table)
+             (syntax :make-hash-table)
              )))
+
+  (define (keyword=? k1 k2)
+    (and (keyword? k1)
+         (keyword? k2)
+         (free-identifier=? k1 k2)))
 
   (define (one-of e ids)
     (exists (lambda (id) (free-identifier=? id e)) ids))
