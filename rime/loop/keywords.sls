@@ -16,6 +16,10 @@
    :trace-codegen
    :join-string
    :seperator
+   :expr
+   :list
+   :hash-table
+   assq-id
    new-sym
    keyword?
    one-of
@@ -87,6 +91,9 @@
   (define-keyword :trace-codegen)
   (define-keyword :join-string)
   (define-keyword :seperator)
+  (define-keyword :expr)
+  (define-keyword :list)
+  (define-keyword :hash-table)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -143,6 +150,9 @@
              (syntax :trace-codegen)
              (syntax :join-string)
              (syntax :seperator)
+             (syntax :expr)
+             (syntax :list)
+             (syntax :hash-table)
              )))
 
   (define (one-of e ids)
@@ -230,4 +240,10 @@
     )
 
   (define (loop-return-value e)
-    (new-sym e ':return-value)))
+    (new-sym e ':return-value))
+
+  (define (assq-id id prop-list default)
+    (cond
+     [(assp (lambda (k)
+                  (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
+     [else default])))
