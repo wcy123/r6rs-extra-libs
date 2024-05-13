@@ -2,26 +2,17 @@
 (library (rime loop collect)
   (export loop/core/collect)
   (import (rnrs (6))
-          (rnrs mutable-pairs (6))
           (rime loop plugin)
-          (rime loop keywords))
+          (rime loop keywords)
+          (for (rime loop list-collector)))
+
   (define (make-collect-list-plugin s-var s-expr append? s-cond-expr)
-    (lambda (method . args)
-      (with-syntax ([var s-var]
-                    [var-tail (new-sym s-var "collect:tail")]
-                    [expr s-expr])
-        (define (gen-collect-body a-expr)
-          (with-syntax ([expr a-expr])
-            #'(if (null? var)
-                  (set! var (cons expr '()))
-                  (begin
-                    (when (null? var-tail)
-                      (let find-tail ([var var])
-                        (if (not (null? (cdr var)))
-                            (find-tail (cdr var))
-                            (set! var-tail var))))
-                    (set-cdr! var-tail (cons expr '()))
-                    (set! var-tail (cdr var-tail))))))
+    (with-syntax ([var s-var]
+                  [var-collector-and-extractor (new-sym s-var "collect-list:collector-and-extractor")]
+                  [var-collector (new-sym s-var "collect-list:collector")]
+                  [var-extractor (new-sym s-var "collect-list:extractor")]
+                  [expr s-expr])
+      (lambda (method . args)
         (case method
           [(debug)
            (object-to-string
@@ -30,24 +21,21 @@
            ]
           [(setup)
            (list
-            #'(var '() #t)
-            #'(var-tail '()))]
+            #'(var '() #t) ;; weak = #t
+            #'(var-collector-and-extractor (list-collector var))
+            #'(var-collector (list-ref var-collector-and-extractor 0))
+            #'(var-extractor (list-ref var-collector-and-extractor 1)))]
 
           [(loop-body finally)
            (cons
             (with-syntax ([cond-expr s-cond-expr])
               (if (not append?)
-                  #`(when cond-expr
-                      #,(gen-collect-body #'expr))
-                  (let ([s-tmp (car (generate-temporaries (list #'var)))])
-                    (with-syntax ([inner-body (gen-collect-body s-tmp)]
-                                  [tmp s-tmp])
-                      #'(when cond-expr
-                          (let local-loop ([e expr])
-                            (if (not (null? e))
-                                (let ([tmp (car e)])
-                                  inner-body
-                                  (local-loop (cdr e))))))))))
+                  #'(when cond-expr
+                      (var-collector expr)
+                      (set! var (var-extractor)))
+                  #'(when cond-expr
+                      (for-each var-collector expr)
+                      (set! var (var-extractor)))))
             (if (null? args) '() (car args)))
            ]
           [else (apply default-plugin #'make-collect-plugin method args)]))))

@@ -11,7 +11,9 @@
     test-initially
     (let ( ;; [init-var1 '(A B C)]
           [init-var2 (list 'A 'B 'C)])
-      (CHECK equal? (loop :initially := init-var2
+      (CHECK equal? (loop :trace-codegen
+                          :trace-parser
+                          :initially :=  init-var2
                           :for ch :in '(d e f)
                           :collect ch
                           :do (map display (list "RET=" :return-value "\n")))
