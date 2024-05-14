@@ -14,7 +14,7 @@
       (hashtable-set! ht 3 "three")
       (CHECK equal?
              (list-sort (lambda (x y) (< (car x) (car y)))
-                        (loop :trace-codegen :for (k v) :in-hashtable ht
+                        (loop :for (k v) :in-hashtable ht
                               :collect (cons k v)))
              '((1 . "one") (2 . "two") (3 . "three")))
       (CHECK equal?

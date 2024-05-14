@@ -26,7 +26,7 @@
             #'(var-collector (list-ref var-collector-and-extractor 0))
             #'(var-extractor (list-ref var-collector-and-extractor 1)))]
 
-          [(loop-body finally)
+          [(loop-body)
            (cons
             (with-syntax ([cond-expr s-cond-expr])
               (if (not append?)
@@ -36,7 +36,7 @@
                   #'(when cond-expr
                       (for-each var-collector expr)
                       (set! var (var-extractor)))))
-            (if (null? args) '() (car args)))
+            (car args))
            ]
           [else (apply default-plugin #'make-collect-plugin method args)]))))
 
@@ -60,11 +60,11 @@
               (list
                #'(var ctor))]
 
-             [(loop-body finally)
+             [(loop-body)
               (cons
                #'(when cond-expr
                    (hashtable-set! var key value))
-               (if (null? args) '() (car args)))
+               (car args))
               ]
              [else (apply default-plugin #'make-collect-plugin method args)]))]
         [else (syntax-violation 'make-collect-hash-table-plugin "expect key value pair" s-expr)])))

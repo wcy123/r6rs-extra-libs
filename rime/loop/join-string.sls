@@ -44,7 +44,7 @@
                            (set! iter-sep seperator))
                          rest-body ...)))]
 
-            [(pre-finally)
+            [(finally)
              (list
               #'(when extractor
                   (set! var (extractor))

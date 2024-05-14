@@ -10,8 +10,7 @@
   (define-test
     test-collect-hash-table
     (let ()
-      (let [(ht (loop :trace-codegen
-                      :for i :in '(1 2 3)
+      (let [(ht (loop :for i :in '(1 2 3)
                       :for j :in '("a" "b" "c")
                       :collect (i j) :as :hash-table
                       ))]
@@ -26,8 +25,7 @@
   (define-test
     test-collect-hash-table-2
     (let ()
-      (let [(ht (loop :trace-codegen
-                      :for i :in '(1 2 1 3)
+      (let [(ht (loop :for i :in '(1 2 1 3)
                       :for j :in '("a" "b" "A" "c")
                       :collect (i j) :as :hash-table
                       ))]

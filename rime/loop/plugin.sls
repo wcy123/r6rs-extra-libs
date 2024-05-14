@@ -22,10 +22,6 @@
        (car args)]
       [(step)
        (list)]
-      [(pre-finally)
-       (list)]
       [(finally)
        (list)]
-      [(is-finally?)
-       #f]
       [else (syntax-violation who "never goes here" method)])))

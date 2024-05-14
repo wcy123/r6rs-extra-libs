@@ -31,7 +31,7 @@
                         :break i++)
            2)
 
-    (CHECK equal? (loop :trace-parser :for i :upfrom 0 :to 10
+    (CHECK equal? (loop :for i :upfrom 0 :to 10
                         :with i+ := (+ 1 i)
                         :with i++ := (+ 1 i+)
                         :collect i++

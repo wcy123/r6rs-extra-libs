@@ -6,8 +6,7 @@
           (rime loop)
           )
   (define-test test:for-in-list-void
-    (CHECK equal? (loop  :trace-parser :trace-codegen
-                         :for i :in '(a b c)) (if #f 0)))
+    (CHECK equal? (loop :for i :in '(a b c)) (if #f 0)))
   (define-test test:for-in-list-do
     (CHECK equal?
            (loop :for i :in '(a b c)
