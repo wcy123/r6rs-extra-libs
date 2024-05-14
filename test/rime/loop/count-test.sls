@@ -12,7 +12,7 @@
     (CHECK equal? (loop :for i :upfrom 0 :to 10
                         :count)
            11)
-    (CHECK equal? (loop :for i :upfrom 0 :to 10
+    (CHECK equal? (loop :trace-codegen :for i :upfrom 0 :to 10
                         :count
                         :finally (+ :return-value 100))
            111)

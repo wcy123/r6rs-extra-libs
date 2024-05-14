@@ -44,7 +44,7 @@
     (list (cons 'loop/core/do loop/core/do)
           (cons 'loop/core/with loop/core/with)
           (cons 'loop/core/collect loop/core/collect)
-          (cons 'loop/core/join-string loop/core/join-string)
+          ;; (cons 'loop/core/join-string loop/core/join-string)
           ;; (cons 'loop/core/group-by loop/core/group-by)
           ;; (cons 'loop/core/finally loop/core/finally)
           ))
@@ -278,12 +278,12 @@
                 ":finally " (syntax->datum #'expr)  " "
                 (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
                 )]
-              [(loop-body)
-               (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)]
-                             [(rest ...) (car args)])
-                 (list #'(begin (set! :return-value expr)
-                                inner-body ...
-                                rest ...)))]
+              ;; [(loop-body)
+              ;;  (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)]
+              ;;                [(rest ...) (car args)])
+              ;;    (list #'(begin (set! :return-value expr)
+              ;;                   inner-body ...
+              ;;                   rest ...)))]
               [(finally)
                (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)])
                  (list #'(begin (set! :return-value expr)
