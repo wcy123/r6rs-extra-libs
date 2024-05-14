@@ -21,6 +21,7 @@
           (rime loop finally)
           (rime loop initially)
           (rime loop join-string)
+          (rime loop plugin)
           )
 
   (define (all-plugins)
@@ -218,16 +219,6 @@
                  (display-loop-plugin loop-level s-loop-expr clauses)]
                 [(setup)
                  (apply append (map (lambda (c) (c 'setup)) clauses))]
-                [(recur)
-                 (list)]
-                [(before-loop-begin)
-                 (list)]
-                [(init)
-                 (list)]
-                [(loop-entry)
-                 (list)]
-                [(continue-condition)
-                 #t]
                 [(loop-body)
                  (cons
                   (with-syntax
@@ -257,14 +248,7 @@
                         epilogue))
                   (car args))
                  ]
-                [(step)
-                 (list)]
-                [(is-finally?) #f]
-                [(pre-finally)
-                 (list)]
-                [(finally)
-                 (list)]
-                [else (syntax-violation #'make-loop-plugin "never goes here" method)])))))))
+                [else (apply default-plugin #'make-loop-plugin method args)])))))))
 
   (define (loop/core/loop original-e)
     (let loop ([e original-e])
