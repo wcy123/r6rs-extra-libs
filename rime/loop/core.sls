@@ -8,6 +8,7 @@
           (rnrs mutable-pairs (6))
           (rime loop keywords)
           (rime pretty-print)
+          (rime loop plugin)
           (rime loop arithmetic)
           (rime loop list)
           (rime loop vector)
@@ -20,7 +21,7 @@
           (rime loop break)
           (rime loop initially)
           (rime loop join-string)
-          (rime loop plugin)
+          (rime loop group-by)
           )
 
   (define (all-plugins)
@@ -37,12 +38,16 @@
           (cons 'loop/core/finally loop/core/finally)
           (cons 'loop/core/initially loop/core/initially)
           (cons 'loop/core/loop loop/core/loop)
-          (cons 'loop/core/join-string loop/core/join-string)))
+          (cons 'loop/core/join-string loop/core/join-string)
+          (cons 'loop/core/group-by loop/core/group-by)))
   (define (plugins-for-finally-clauses)
     (list (cons 'loop/core/do loop/core/do)
           (cons 'loop/core/with loop/core/with)
           (cons 'loop/core/collect loop/core/collect)
-          (cons 'loop/core/join-string loop/core/join-string)))
+          (cons 'loop/core/join-string loop/core/join-string)
+          ;; (cons 'loop/core/group-by loop/core/group-by)
+          ;; (cons 'loop/core/finally loop/core/finally)
+          ))
   (define (parse-loop-clauses-with-plugins original-e all-plugins)
     (let ([clauses '()])
       (define (add-clause c)
@@ -261,9 +266,9 @@
                     [return-value s-return-value])
         (logger :info
                 " x = " (object-to-string
-                              ":finally " (syntax->datum #'expr)  " "
-                              (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
-                              ))
+                         ":finally " (syntax->datum #'expr)  " "
+                         (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
+                         ))
         (lambda (method . args)
           (with-syntax ([expr s-expr]
                         [:return-value s-return-value])
@@ -273,6 +278,12 @@
                 ":finally " (syntax->datum #'expr)  " "
                 (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
                 )]
+              [(loop-body)
+               (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)]
+                             [(rest ...) (car args)])
+                 (list #'(begin (set! :return-value expr)
+                                inner-body ...
+                                rest ...)))]
               [(finally)
                (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)])
                  (list #'(begin (set! :return-value expr)

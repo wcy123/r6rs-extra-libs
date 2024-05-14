@@ -20,6 +20,7 @@
    :list
    :hash-table
    :make-hash-table
+   :group
    assq-id
    new-sym
    keyword?
@@ -98,6 +99,7 @@
   (define-keyword :list)
   (define-keyword :hash-table)
   (define-keyword :make-hash-table)
+  (define-keyword :group)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -158,6 +160,7 @@
              (syntax :list)
              (syntax :hash-table)
              (syntax :make-hash-table)
+             (syntax :group)
              )))
 
   (define (keyword=? k1 k2)

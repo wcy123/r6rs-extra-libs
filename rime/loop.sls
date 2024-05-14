@@ -19,6 +19,7 @@
           :list
           :hash-table
           :make-hash-table
+          :group
           )
   (import (rnrs (6))
           (rime loop keywords)
