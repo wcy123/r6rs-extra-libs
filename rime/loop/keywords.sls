@@ -25,17 +25,18 @@
    keyword?
    keyword=?
    one-of
-   display-objects ;; for debugging purpose
-   object-to-string
+   object-to-string ;; for debugging purpose
    loop-level
    loop-level++
    loop-trace-parser
    loop-trace-codegen
    loop-init-props
    loop-return-value
+   logger :info :debug :trace
    )
   (import (rnrs (6))
-          (rime loop display))
+          (rime logging))
+
   (define-syntax define-keyword
     (syntax-rules ()
       [(_ keyword) (define-syntax keyword

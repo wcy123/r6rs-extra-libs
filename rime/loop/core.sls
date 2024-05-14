@@ -55,11 +55,10 @@
                     (if clause
                         (begin
                           (when (loop-trace-parser e)
-                            (display-objects
-                             "rime/loop/core.sls:55:30: [" plugin-name "]"
+                            (logger :debug "[" plugin-name "]"
                              " produces [" (clause 'debug) "]"
                              " rest=" (syntax->datum rest) "\n"
-                             " e=" (syntax->datum e) "\n"))
+                             " e=" (syntax->datum e)))
                           (values clause rest))
                         (loop-plugin (cdr plugins)))))))))
       (let loop ([e original-e])
@@ -75,13 +74,12 @@
             (syntax-case e ()
               [((k props ...))
                (when (or #f (loop-trace-parser #'(k props ...)))
-                 (display-objects
-                  "rime/loop/core.sls:78:19: PARSING OK! "
+                 (logger :debug
+                  " PARSING OK! "
                   (syntax->datum original-e) " => clauses: "
                   (loop-clauses-to-string (loop-level #'(k props ...))
                                           (reverse clauses))
-                  "\n")
-                 )
+                  ))
                (values (reverse clauses) #'(k props ...))]
               [_else (syntax-violation
                       'parse-loop-clauses
@@ -185,11 +183,10 @@
              #'(let* (prologue-binding ...)
                  inner-body ...))])
       (when (loop-trace-codegen k)
-        (display-objects
-         "rime/loop/core.sls:173:10: [" (syntax->datum original-e) "]"
+        (logger :info " [" (syntax->datum original-e) "]"
          " expand to \n"
          (pretty-print-to-string (syntax->datum code))
-         "\n"))
+         ))
       code))
   (define (loop-clauses-to-string level clauses)
     (define space #\ )
