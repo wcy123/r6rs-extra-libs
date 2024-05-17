@@ -22,6 +22,7 @@
           (rime loop initially)
           (rime loop join-string)
           (rime loop group-by)
+          (rime loop count)
           )
 
   (define (all-plugins)
@@ -39,7 +40,8 @@
           (cons 'loop/core/initially loop/core/initially)
           (cons 'loop/core/loop loop/core/loop)
           (cons 'loop/core/join-string loop/core/join-string)
-          (cons 'loop/core/group-by loop/core/group-by)))
+          (cons 'loop/core/group-by loop/core/group-by)
+          (cons 'loop/core/count loop/core/count)))
   (define (plugins-for-finally-clauses)
     (list (cons 'loop/core/do loop/core/do)
           (cons 'loop/core/with loop/core/with)
