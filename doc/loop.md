@@ -131,7 +131,7 @@ so that above example can also be written as below.
 ## Accumulate, `:collect` and `:append`
 
 ```scheme
-{:collect :append} <expr> {[:if cond-expr ]|[:unless cond-expr ]|[:when cond-expr ]} [ :into <var> ]
+{:collect :append} <expr> {[:if cond-expr ]|[:unless cond-expr ]|[:when cond-expr ]|[ :into <var> ]}*
 ```
 
 As above examples have shown, a loop expression return a value, by default it is `(void)`.
@@ -154,6 +154,9 @@ list.
       :for ch :in '(a b c)
       :append (list index ch)) ; => (0 a 1 b 2 c)
 ```
+
+we can swap subclasses, for example, `:collect <expr> :into <var> :if
+<cond>` is same as `:collect <expr> :into <var> :if <cond>`.
 
 NOTE: `:collect` clause initialize the return value of the whole loop
 expression with `()`, so that an empty iteration results in `()`

@@ -34,7 +34,7 @@
                               #'(iter-sep ""))
              ]
 
-            [(loop-body)
+            [(iteration-body)
              (with-syntax ([nport s-port]
                            [(rest-body ...) (car args)])
                (list #'(begin
@@ -45,10 +45,11 @@
                          rest-body ...)))]
 
             [(pre-finally)
-             (list
+             (cons
               #'(when extractor
                   (set! var (extractor))
-                  (set! extractor #f)))]
+                  (set! extractor #f))
+              (car args))]
 
             [else (apply default-plugin #'make-join-string-plugin method args)])))))
 

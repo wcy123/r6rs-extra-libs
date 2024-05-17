@@ -4,7 +4,7 @@
   (import (rnrs (6))
           (rnrs eval (6))
           (rime rime-0)
-          (rime loop))
+          )
   (define (unknown-loc)
     (list "<UNKNOWN>" 0 0))
   (cond-expand
@@ -29,18 +29,17 @@
                                             (buffer-mode block)
                                             (native-transcoder))
         (lambda (port)
-          (loop :initially line-number := 1
-                :initially column-number := 1
-                :for pos :upfrom 0
-                :with ch := (get-char port)
-                :break #f :if (eof-object? ch)
-                :count :into column-number
-                :break :unless (fx<? pos position)
-                :if (char=? ch #\newline)
-                :count :into line-number
-                :with column-number := 0
-                :finally (cons line-number column-number)
-                ))))
+          (let loop ([pos 0]
+                     [line-number 1]
+                     [column-number 0])
+            (let ([ch (get-char port)])
+              (cond
+               [(eof-object? ch) #f]
+               [(fx>=? pos position) (cons line-number column-number)]
+               [(char=? ch #\newline) (loop (fx+ pos 1) (fx+ 1 line-number) 1)]
+               [else (loop (fx+ pos 1) line-number (fx+ 1 column-number))]
+               ))))))
+
     (define (syntax-location syn)
       (cond
        [(record-get-field syn 'syntax-object 0 'annotation 1 'source)

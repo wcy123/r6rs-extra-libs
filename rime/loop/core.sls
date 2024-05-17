@@ -8,6 +8,7 @@
           (rnrs mutable-pairs (6))
           (rime loop keywords)
           (rime pretty-print)
+          (rime loop plugin)
           (rime loop arithmetic)
           (rime loop list)
           (rime loop vector)
@@ -18,9 +19,9 @@
           (rime loop with)
           (rime loop collect)
           (rime loop break)
-          (rime loop finally)
           (rime loop initially)
           (rime loop join-string)
+          (rime loop group-by)
           )
 
   (define (all-plugins)
@@ -37,14 +38,22 @@
           (cons 'loop/core/finally loop/core/finally)
           (cons 'loop/core/initially loop/core/initially)
           (cons 'loop/core/loop loop/core/loop)
-          (cons 'loop/core/join-string loop/core/join-string)))
-
-  (define (parse-loop-clauses original-e)
+          (cons 'loop/core/join-string loop/core/join-string)
+          (cons 'loop/core/group-by loop/core/group-by)))
+  (define (plugins-for-finally-clauses)
+    (list (cons 'loop/core/do loop/core/do)
+          (cons 'loop/core/with loop/core/with)
+          (cons 'loop/core/collect loop/core/collect)
+          ;; (cons 'loop/core/join-string loop/core/join-string)
+          ;; (cons 'loop/core/group-by loop/core/group-by)
+          ;; (cons 'loop/core/finally loop/core/finally)
+          ))
+  (define (parse-loop-clauses-with-plugins original-e all-plugins)
     (let ([clauses '()])
       (define (add-clause c)
         (set! clauses (cons c clauses)))
       (define (parse-clause e)
-        (let loop-plugin ([plugins (all-plugins)])
+        (let loop-plugin ([plugins all-plugins])
           (if (null? plugins)
               (values #f e)
               (let ([plugin (car plugins)])
@@ -54,11 +63,10 @@
                     (if clause
                         (begin
                           (when (loop-trace-parser e)
-                            (display-objects
-                             "rime/loop/core.sls:55:30: [" plugin-name "]"
-                             " produces [" (clause 'debug) "]"
-                             " rest=" (syntax->datum rest) "\n"
-                             " e=" (syntax->datum e) "\n"))
+                            (logger :info "[" plugin-name "]"
+                                    " produces [" (clause 'debug) "]"
+                                    " rest=" (syntax->datum rest) "\n"
+                                    " e=" (syntax->datum e)))
                           (values clause rest))
                         (loop-plugin (cdr plugins)))))))))
       (let loop ([e original-e])
@@ -74,13 +82,12 @@
             (syntax-case e ()
               [((k props ...))
                (when (or #f (loop-trace-parser #'(k props ...)))
-                 (display-objects
-                  "rime/loop/core.sls:78:19: PARSING OK! "
-                  (syntax->datum original-e) " => clauses: "
-                  (loop-clauses-to-string (loop-level #'(k props ...))
-                                          (reverse clauses))
-                  "\n")
-                 )
+                 (logger :debug
+                         " PARSING OK! "
+                         (syntax->datum original-e) " => clauses: "
+                         (loop-clauses-to-string "LOOP" (loop-level #'(k props ...))
+                                                 (reverse clauses))
+                         ))
                (values (reverse clauses) #'(k props ...))]
               [_else (syntax-violation
                       'parse-loop-clauses
@@ -93,6 +100,9 @@
                       e)]
               )]
            )))))
+  (define (parse-loop-clauses original-e)
+    (parse-loop-clauses-with-plugins original-e (all-plugins)))
+
   (define (codegen-prologue-binding k clauses)
     (define (remove-weak bindings)
       (let ([vars '()]
@@ -149,32 +159,20 @@
               (map (lambda (loop-clause)
                      (loop-clause 'setup)) clauses)))))
 
-  (define (loop-codegen-body clauses)
+  (define (loop-codegen-body-or-finally clauses tag)
     (let loop ([clauses clauses])
       (if (null? clauses)
           '()
           (begin
-            ((car clauses) 'loop-body (loop (cdr clauses)))))))
+            ((car clauses) tag (loop (cdr clauses)))))))
+  (define (loop-codegen-body clauses)
+    (loop-codegen-body-or-finally clauses 'iteration-body))
 
-  (define (partition-epilogue-clauses clauses)
-    (let loop ([pre-clauses '()]
-               [clauses clauses])
-      (cond
-       [(null? clauses)
-        (values (reverse pre-clauses) clauses)]
-       [((car clauses) 'is-finally?)
-        (values (reverse pre-clauses) clauses)]
-       [else
-        (loop (cons (car clauses) pre-clauses)
-              (cdr clauses))])))
+  (define (loop-codegen-pre-finally clauses)
+    (loop-codegen-body-or-finally clauses 'pre-finally))
 
-  (define (loop-codegen-epilogue k clauses epilogue-clauses)
-    (with-syntax ([(finally-block ...)
-                   (append
-                    (apply append (map (lambda (clause) (clause 'pre-finally)) clauses))
-                    (apply append (map (lambda (clause) (clause 'finally)) epilogue-clauses)))]
-                  [:return-value (loop-return-value k)])
-      #'(begin finally-block ... :return-value)))
+  (define (loop-codegen-finally clauses)
+    (loop-codegen-body-or-finally clauses 'finally))
 
   (define (loop-codegen k clauses original-e)
     (let ([code
@@ -184,20 +182,19 @@
              #'(let* (prologue-binding ...)
                  inner-body ...))])
       (when (loop-trace-codegen k)
-        (display-objects
-         "rime/loop/core.sls:173:10: [" (syntax->datum original-e) "]"
-         " expand to \n"
-         (pretty-print-to-string (syntax->datum code))
-         "\n"))
+        (logger :info " [" (syntax->datum original-e) "]"
+                " expand to \n"
+                (pretty-print-to-string (syntax->datum code))
+                ))
       code))
-  (define (loop-clauses-to-string level clauses)
+  (define (loop-clauses-to-string PREFIX level clauses)
     (define space #\ )
     (define (indent level)
       (make-string (fx* 4 level) space))
     (apply string-append (map
                           (lambda (c)
                             (object-to-string
-                             "\n" (indent (fx+ level 1)) "LOOP[" level "] "
+                             "\n" (indent (fx+ level 1)) PREFIX "[" level "] "
                              (c 'debug)))
                           clauses)))
 
@@ -205,66 +202,54 @@
     (object-to-string
      ":loop@" level " "
      (syntax->datum s-loop-expr)
-     (loop-clauses-to-string (fx+ level 1) clauses)))
+     (loop-clauses-to-string "LOOP" (fx+ level 1) clauses)))
 
   (define (make-loop-plugin s-k s-loop-expr s-recur-name)
     (let-values ([(clauses s-next-k) (parse-loop-clauses s-loop-expr)])
-      (let-values ([(clauses epilogue-clauses) (partition-epilogue-clauses clauses)])
-        (let ([loop-level (loop-level s-k)])
-          (lambda (method . args)
-            (with-syntax ()
-              (case method
-                [(debug)
-                 (display-loop-plugin loop-level s-loop-expr clauses)]
-                [(setup)
-                 (apply append (map (lambda (c) (c 'setup)) clauses))]
-                [(recur)
-                 (list)]
-                [(before-loop-begin)
-                 (list)]
-                [(init)
-                 (list)]
-                [(loop-entry)
-                 (list)]
-                [(continue-condition)
-                 #t]
-                [(loop-body)
-                 (cons
-                  (with-syntax
-                      ([([recur-binding-vars recur-binding-values] ...)
-                        (apply append (map (lambda (f) (f 'recur)) clauses))]
-                       [([before-loop-begin-vars before-loop-begin-values] ...)
-                        (apply append (map (lambda (f) (f 'before-loop-begin)) clauses))]
-                       [([binding-vars binding-values] ...)
-                        (apply append (map (lambda (f) (f 'init)) clauses))]
-                       [bindings-on-loop-begin
-                        (apply append (map (lambda (f) (f 'loop-entry)) clauses))]
-                       [(continue-condition ...)
-                        (remove #t (map (lambda (f) (f 'continue-condition)) clauses))]
-                       [(continue-value ...)
-                        (apply append (map (lambda (f) (f 'step)) clauses))]
-                       [repeat-label (new-sym s-k "LOOP-REPEAT")]
-                       [recur-label s-recur-name]
-                       [(inner-body ...) (loop-codegen-body clauses)]
-                       [epilogue (loop-codegen-epilogue s-k clauses epilogue-clauses)])
-                    #'(let recur-label ([recur-binding-vars recur-binding-values] ...)
-                        (let* ([before-loop-begin-vars before-loop-begin-values] ...)
-                          (let repeat-label ([binding-vars binding-values] ...)
-                            (if (and continue-condition ...)
-                                (let* bindings-on-loop-begin
-                                  inner-body ...
-                                  (repeat-label continue-value ...)))))
-                        epilogue))
-                  (car args))
-                 ]
-                [(step)
-                 (list)]
-                [(is-finally?) #f]
-                [(pre-finally)
-                 (list)]
-                [(finally)
-                 (list)]
-                [else (syntax-violation #'make-loop-plugin "never goes here" method)])))))))
+      (let ([loop-level (loop-level s-k)])
+        (lambda (method . args)
+          (with-syntax ()
+            (case method
+              [(debug)
+               (display-loop-plugin loop-level s-loop-expr clauses)]
+              [(setup)
+               (apply append (map (lambda (c) (c 'setup)) clauses))]
+              [(iteration-body)
+               (cons
+                (with-syntax
+                    ([<<return-value>> (loop-return-value s-k)]
+                     [<<recur-name>> s-recur-name]
+                     [([<<recur-binding>> <<recur-value>>] ...)
+                      (apply append (map (lambda (f) (f 'recur)) clauses))]
+                     [([<<outer-binding>> <<outer-value>>] ...)
+                      (apply append (map (lambda (f) (f 'outer-iteration)) clauses))]
+                     [<<iter-name>> (new-sym s-k "LOOP-REPEAT")]
+                     [([<<iteration-binding>> <<iteration-value>> <<step-expr>>] ...)
+                      (apply append (map (lambda (f) (f 'iteration)) clauses))]
+                     [([<<inner-binding>> <<inner-value>>] ...)
+                      (apply append (map (lambda (f) (f 'inner-iteration)) clauses))]
+                     [(<<continue-condition>> ...)
+                      (remove #t (map (lambda (f) (f 'continue-condition)) clauses))]
+                     [([<<inner-if-true-binding>> <<inner-if-true-value>>] ...)
+                      (apply append (map (lambda (f) (f 'inner-if-true)) clauses))]
+                     [(<<iteration-body>> ...) (loop-codegen-body clauses)]
+                     [(<<pre-finally>> ...) (loop-codegen-pre-finally clauses)]
+                     [(<<finally>> ...) (loop-codegen-finally clauses)])
+                  #'(let <<recur-name>> ([<<recur-binding>> <<recur-value>>] ...)
+                         (let* ([<<outer-binding>> <<outer-value>>] ...)
+                           (let <<iter-name>> ([<<iteration-binding>> <<iteration-value>>] ...)
+                                (let* ([<<inner-binding>> <<inner-value>>] ...)
+                                  (if (and <<continue-condition>> ...)
+                                      (let* ([<<inner-if-true-binding>> <<inner-if-true-value>>] ...)
+                                        <<iteration-body>> ...
+                                        (<<iter-name>> <<step-expr>> ...))
+                                      (begin <<pre-finally>> ...
+                                             'pre-finally-ended ;; only for debugging purpose
+                                             <<return-value>>
+                                             <<finally>> ...)))))))
+                (car args))
+               ]
+              [else (apply default-plugin #'make-loop-plugin method args)]))))))
 
   (define (loop/core/loop original-e)
     (let loop ([e original-e])
@@ -278,6 +263,42 @@
         [(k (:loop clauses ...) rest ...)
          (with-syntax ([name (new-sym #'k "RECUR")])
            (loop #'(k (:loop :name name clauses ...) rest ...)))
+         ]
+        [(k rest ...)
+         (values #f e)
+         ])))
+  (define (make-finally-plugin s-k s-expr s-return-value finally-clauses)
+    (let ([loop-level (loop-level s-k)])
+      (with-syntax ([expr s-expr]
+                    [return-value s-return-value])
+        (lambda (method . args)
+          (with-syntax ([expr s-expr]
+                        [:return-value s-return-value])
+            (case method
+              [(debug)
+               (object-to-string
+                ":finally " (syntax->datum #'expr)  " "
+                (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
+                )]
+              [(finally)
+               (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)])
+                 (list #'(begin (begin (set! :return-value expr) :return-value)
+                                inner-body ...)))]
+              [else (apply default-plugin #'make-finally-plugin method args)]))))))
+
+  (define (loop/core/finally original-e)
+    (let loop ([e original-e])
+      (syntax-case e (:finally)
+        [(k :finally expr rest ...)
+         (not (keyword? #'expr))
+         (let-values ([(finally-clauses s-rest) (parse-loop-clauses-with-plugins #'(k rest ...) (plugins-for-finally-clauses))])
+           (with-syntax ([ret (loop-return-value #'k)])
+             (values (make-finally-plugin #'k #'expr (loop-return-value #'k) finally-clauses)
+                     #'(k))))]
+        [(k :finally other-clause-start-with-a-keyword rest ...)
+         ;; go to pattern 0.
+         (with-syntax ([ret (loop-return-value #'k)])
+           (loop #'(k :finally ret other-clause-start-with-a-keyword rest ...)))
          ]
         [(k rest ...)
          (values #f e)

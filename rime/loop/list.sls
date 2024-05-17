@@ -20,16 +20,14 @@
               " :in " (syntax->datum #'expr))]
             [(recur)
              (list #'[expr-recur-var expr])]
-            [(init)
-             (list #'[expr-loop-var expr-recur-var])]
-            [(loop-entry)
+            [(iteration)
+             (list #'[expr-loop-var expr-recur-var (cdr expr-loop-var)])]
+            [(inner-if-true)
              (list (if (eq? in/on 'in)
                        #'[var (car expr-loop-var)]
                        #'[var expr-loop-var]))]
             [(continue-condition)
              #'(not (null? expr-loop-var))]
-            [(step)
-             (list #'(cdr expr-loop-var))]
             [else (apply default-plugin #'make-for-as-list method args)])))))
 
   (define (loop/core/list e)

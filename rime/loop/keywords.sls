@@ -16,20 +16,28 @@
    :trace-codegen
    :join-string
    :seperator
+   :expr
+   :list
+   :hash-table
+   :make-hash-table
+   :group
+   assq-id
    new-sym
    keyword?
+   keyword=?
    one-of
-   display-objects ;; for debugging purpose
-   object-to-string
+   object-to-string ;; for debugging purpose
    loop-level
    loop-level++
    loop-trace-parser
    loop-trace-codegen
    loop-init-props
    loop-return-value
+   logger :info :debug :trace
    )
   (import (rnrs (6))
-          (rime loop display))
+          (rime logging))
+
   (define-syntax define-keyword
     (syntax-rules ()
       [(_ keyword) (define-syntax keyword
@@ -87,6 +95,11 @@
   (define-keyword :trace-codegen)
   (define-keyword :join-string)
   (define-keyword :seperator)
+  (define-keyword :expr)
+  (define-keyword :list)
+  (define-keyword :hash-table)
+  (define-keyword :make-hash-table)
+  (define-keyword :group)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -143,7 +156,17 @@
              (syntax :trace-codegen)
              (syntax :join-string)
              (syntax :seperator)
+             (syntax :expr)
+             (syntax :list)
+             (syntax :hash-table)
+             (syntax :make-hash-table)
+             (syntax :group)
              )))
+
+  (define (keyword=? k1 k2)
+    (and (keyword? k1)
+         (keyword? k2)
+         (free-identifier=? k1 k2)))
 
   (define (one-of e ids)
     (exists (lambda (id) (free-identifier=? id e)) ids))
@@ -230,4 +253,10 @@
     )
 
   (define (loop-return-value e)
-    (new-sym e ':return-value)))
+    (new-sym e ':return-value))
+
+  (define (assq-id id prop-list default)
+    (cond
+     [(assp (lambda (k)
+                  (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
+     [else default])))

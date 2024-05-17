@@ -19,11 +19,11 @@
               ":break " (syntax->datum #'expr)
               " :if " (syntax->datum #'cond))
              ]
-            [(init)
-             (list #'(break-flag #f))]
+            [(iteration)
+             (list #'(break-flag #f break-flag))]
             [(continue-condition)
              #'(not break-flag)]
-            [(loop-body)
+            [(iteration-body)
              (let ([rest-body (car args)])
                (with-syntax ([(rest-body ...) (car args)
                               ]
@@ -40,8 +40,6 @@
                       (if break-flag
                           (begin 0 set-return-value ...)
                           (begin 0 rest-body ...))))))]
-            [(step)
-             (list #'break-flag)]
             [else (apply default-plugin #'make-break-plugin method args)])))))
 
   (define (loop/core/break e)

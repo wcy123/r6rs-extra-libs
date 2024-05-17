@@ -39,24 +39,22 @@
               " :in-hashtable " (syntax->datum #'expr))]
             [(recur)
              (list #'(expr-var expr))]
-            [(before-loop-begin)
+            [(outer-iteration)
              (remove #f
                      (list
                       #'(keys (hashtable-keys expr-var))
                       #'(hash-size hash-size-expr)))]
-            [(init)
-             (list #'[var-index 0])]
-            [(loop-entry)
+            [(iteration)
+             (list #'[var-index 0 (fx+ 1 var-index)])]
+            [(inner-if-true)
              (remove #f
                      (list (and s-key #'[key (vector-ref keys var-index)])
                            (and s-value #'[value (hashtable-ref expr-var key #f)])))]
             [(continue-condition)
-             #'(< var-index hash-size)]
-            [(loop-body)
+             #'(fx<? var-index hash-size)]
+            [(iteration)
              (with-syntax ([(rest-body ...) (car args)])
                (list #'(begin expr rest-body ...)))]
-            [(step)
-             (list #'(+ 1 var-index))]
             [else (apply default-plugin #'make-hashtable-plugin method args)])))))
   (define (loop/core/hashtable e)
     (syntax-case e (:in-hashtable)

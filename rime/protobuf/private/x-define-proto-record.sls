@@ -6,7 +6,6 @@
   (import (rnrs (6))
           (rnrs bytevectors (6))
           (rime loop)
-          (rime loop display)
           (rime protobuf private record)
           (rime protobuf private message)
           (rime protobuf private vec))
@@ -16,7 +15,7 @@
     (loop :for r-proto-message :in (r-proto-messages r-proto)
           (:loop :for code :in (r-message.define-record-type r-proto-message)
                  :collect code)
-            ))
+          ))
 
   (define (r-message.define-record-type r-proto-message)
     (let ([r-fields  (r-message-fields r-proto-message)])
@@ -91,8 +90,12 @@
         [(required sint64) 0]
         [(optional _) #'not-present]
         [(repeated _) #'(vec)]
-        [(otherwise ...) (raise (object-to-string
-                                 "scheme/protobuf/private/x-define-proto-record.scm:87:51: (field-default-value)"
-                                 " TODO " (syntax->datum #'(label type)) "\n"))])))
-
-  )
+        [(otherwise ...) (raise (call-with-string-output-port
+                                 (lambda (port)
+                                   (for-each
+                                    (lambda (x)
+                                      (display x port))
+                                    (list " (field-default-value)"
+                                          " TODO "
+                                          (syntax->datum #'(label type)))) "\n"
+                                   )))]))))
