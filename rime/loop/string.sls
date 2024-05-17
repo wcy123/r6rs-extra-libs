@@ -19,14 +19,12 @@
               (cons '~s (syntax->datum #'expr)))]
             [(recur)
              (list #'(expr-var expr))]
-            [(init)
-             (list #'[var-index offset])]
-            [(loop-entry)
+            [(iteration)
+             (list #'[var-index offset (+ 1 var-index)])]
+            [(inner-if-true)
              (list #'[var (string-ref expr-var var-index)])]
             [(continue-condition)
              #'(< var-index (string-length expr-var))]
-            [(step)
-             (list #'(+ 1 var-index))]
             [else (apply default-plugin #'make-string-plugin method args)])))))
 
   (define (loop/core/string e)

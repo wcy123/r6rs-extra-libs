@@ -12,7 +12,7 @@
             [(debug)
              (object-to-string
               ":if " (syntax->datum #'expr))]
-            [(loop-body)
+            [(iteration-body)
              (with-syntax ([(rest-body ...) (car args)])
                (list #'(if expr
                            (begin

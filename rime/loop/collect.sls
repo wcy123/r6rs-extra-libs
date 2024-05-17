@@ -26,16 +26,18 @@
             #'(var-collector (list-ref var-collector-and-extractor 0))
             #'(var-extractor (list-ref var-collector-and-extractor 1)))]
 
-          [(loop-body)
+          [(iteration-body)
            (cons
             (with-syntax ([cond-expr s-cond-expr])
               (if (not append?)
                   #'(when cond-expr
                       (var-collector expr)
-                      (set! var (var-extractor)))
+                      (set! var (var-extractor))
+                      var)
                   #'(when cond-expr
                       (for-each var-collector expr)
-                      (set! var (var-extractor)))))
+                      (set! var (var-extractor))
+                      var)))
             (car args))
            ]
           [else (apply default-plugin #'make-collect-plugin method args)]))))
@@ -60,7 +62,7 @@
               (list
                #'(var ctor))]
 
-             [(loop-body)
+             [(iteration-body)
               (cons
                #'(when cond-expr
                    (hashtable-set! var key value))

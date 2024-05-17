@@ -22,8 +22,8 @@
               " :by " (if less "<" ">")
               (if inclusive "=" ""))
              ]
-            [(init)
-             (list #'[var init])]
+            [(iteration)
+             (list #'[var init (fx+ var step)])]
             [(continue-condition)
              (with-syntax ([compare (cond
                                      [(and less (not inclusive)) #'fx<?]
@@ -34,8 +34,6 @@
                ;; todo evaluate end only once
                (if s-end #'(compare var end) #t))
              ]
-            [(step)
-             (list #'(fx+ var step))]
             [else (apply default-plugin #'build-for-as-arithmetic method args)])))))
 
   (define-record-type for-as-arithmetic

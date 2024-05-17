@@ -18,7 +18,7 @@
               " :initially " (syntax->datum #'init))]
             [(setup)
              (list #'(var init weak))]
-            [(loop-body)
+            [(iteration-body)
              (with-syntax ([(rest-body ...) (car args)])
                (list #'(begin
                          [set! var expr]

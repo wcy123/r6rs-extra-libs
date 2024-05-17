@@ -33,9 +33,7 @@
 
     (CHECK equal?
            (sorted-ht
-            (loop :trace-parser
-                  :trace-codegen
-                  :for i :in '(1 2 1 3)
+            (loop :for i :in '(1 2 1 3)
                   :for j :in '("a" "b" "A" "c")
                   :group j :by i :into var
                   :group j :by 100 :into var
@@ -45,12 +43,11 @@
 
     (CHECK equal?
            (sorted-ht
-            (loop :trace-parser
-                  :trace-codegen
-                  :for i :in '(1 2 1 3)
+            (loop :for i :in '(1 2 1 3)
                   :for j :in '("a" "b" "A" "c")
                   :group j :by i :into var :if (odd? i)
                   :group j :by 100 :into var
                   :finally var
                   ))
-           '((1 "a" "A") (3 "c") (100 "a" "b" "A" "c")))))
+           '((1 "a" "A") (3 "c") (100 "a" "b" "A" "c")))
+    ))

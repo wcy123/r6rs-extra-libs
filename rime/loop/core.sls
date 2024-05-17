@@ -159,19 +159,20 @@
               (map (lambda (loop-clause)
                      (loop-clause 'setup)) clauses)))))
 
-  (define (loop-codegen-body clauses)
+  (define (loop-codegen-body-or-finally clauses tag)
     (let loop ([clauses clauses])
       (if (null? clauses)
           '()
           (begin
-            ((car clauses) 'loop-body (loop (cdr clauses)))))))
+            ((car clauses) tag (loop (cdr clauses)))))))
+  (define (loop-codegen-body clauses)
+    (loop-codegen-body-or-finally clauses 'iteration-body))
 
+  (define (loop-codegen-pre-finally clauses)
+    (loop-codegen-body-or-finally clauses 'pre-finally))
 
-  (define (loop-codegen-epilogue k clauses)
-    (with-syntax ([(finally-block ...)
-                   (apply append (map (lambda (clause) (clause 'finally)) clauses))]
-                  [:return-value (loop-return-value k)])
-      #'(begin finally-block ... :return-value)))
+  (define (loop-codegen-finally clauses)
+    (loop-codegen-body-or-finally clauses 'finally))
 
   (define (loop-codegen k clauses original-e)
     (let ([code
@@ -213,33 +214,39 @@
                (display-loop-plugin loop-level s-loop-expr clauses)]
               [(setup)
                (apply append (map (lambda (c) (c 'setup)) clauses))]
-              [(loop-body)
+              [(iteration-body)
                (cons
                 (with-syntax
-                    ([([recur-binding-vars recur-binding-values] ...)
+                    ([<<return-value>> (loop-return-value s-k)]
+                     [<<recur-name>> s-recur-name]
+                     [([<<recur-binding>> <<recur-value>>] ...)
                       (apply append (map (lambda (f) (f 'recur)) clauses))]
-                     [([before-loop-begin-vars before-loop-begin-values] ...)
-                      (apply append (map (lambda (f) (f 'before-loop-begin)) clauses))]
-                     [([binding-vars binding-values] ...)
-                      (apply append (map (lambda (f) (f 'init)) clauses))]
-                     [bindings-on-loop-begin
-                      (apply append (map (lambda (f) (f 'loop-entry)) clauses))]
-                     [(continue-condition ...)
+                     [([<<outer-binding>> <<outer-value>>] ...)
+                      (apply append (map (lambda (f) (f 'outer-iteration)) clauses))]
+                     [<<iter-name>> (new-sym s-k "LOOP-REPEAT")]
+                     [([<<iteration-binding>> <<iteration-value>> <<step-expr>>] ...)
+                      (apply append (map (lambda (f) (f 'iteration)) clauses))]
+                     [([<<inner-binding>> <<inner-value>>] ...)
+                      (apply append (map (lambda (f) (f 'inner-iteration)) clauses))]
+                     [(<<continue-condition>> ...)
                       (remove #t (map (lambda (f) (f 'continue-condition)) clauses))]
-                     [(continue-value ...)
-                      (apply append (map (lambda (f) (f 'step)) clauses))]
-                     [repeat-label (new-sym s-k "LOOP-REPEAT")]
-                     [recur-label s-recur-name]
-                     [(inner-body ...) (loop-codegen-body clauses)]
-                     [epilogue (loop-codegen-epilogue s-k clauses)])
-                  #'(let recur-label ([recur-binding-vars recur-binding-values] ...)
-                      (let* ([before-loop-begin-vars before-loop-begin-values] ...)
-                        (let repeat-label ([binding-vars binding-values] ...)
-                          (if (and continue-condition ...)
-                              (let* bindings-on-loop-begin
-                                inner-body ...
-                                (repeat-label continue-value ...)))))
-                      epilogue))
+                     [([<<inner-if-true-binding>> <<inner-if-true-value>>] ...)
+                      (apply append (map (lambda (f) (f 'inner-if-true)) clauses))]
+                     [(<<iteration-body>> ...) (loop-codegen-body clauses)]
+                     [(<<pre-finally>> ...) (loop-codegen-pre-finally clauses)]
+                     [(<<finally>> ...) (loop-codegen-finally clauses)])
+                  #'(let <<recur-name>> ([<<recur-binding>> <<recur-value>>] ...)
+                         (let* ([<<outer-binding>> <<outer-value>>] ...)
+                           (let <<iter-name>> ([<<iteration-binding>> <<iteration-value>>] ...)
+                                (let* ([<<inner-binding>> <<inner-value>>] ...)
+                                  (if (and <<continue-condition>> ...)
+                                      (let* ([<<inner-if-true-binding>> <<inner-if-true-value>>] ...)
+                                        <<iteration-body>> ...
+                                        (<<iter-name>> <<step-expr>> ...))
+                                      (begin <<pre-finally>> ...
+                                             'pre-finally-ended ;; only for debugging purpose
+                                             <<return-value>>
+                                             <<finally>> ...)))))))
                 (car args))
                ]
               [else (apply default-plugin #'make-loop-plugin method args)]))))))
@@ -264,11 +271,6 @@
     (let ([loop-level (loop-level s-k)])
       (with-syntax ([expr s-expr]
                     [return-value s-return-value])
-        (logger :info
-                " x = " (object-to-string
-                         ":finally " (syntax->datum #'expr)  " "
-                         (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
-                         ))
         (lambda (method . args)
           (with-syntax ([expr s-expr]
                         [:return-value s-return-value])
@@ -278,15 +280,9 @@
                 ":finally " (syntax->datum #'expr)  " "
                 (loop-clauses-to-string "FINALLY" loop-level finally-clauses)
                 )]
-              ;; [(loop-body)
-              ;;  (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)]
-              ;;                [(rest ...) (car args)])
-              ;;    (list #'(begin (set! :return-value expr)
-              ;;                   inner-body ...
-              ;;                   rest ...)))]
               [(finally)
                (with-syntax ([(inner-body ...) (loop-codegen-body finally-clauses)])
-                 (list #'(begin (set! :return-value expr)
+                 (list #'(begin (begin (set! :return-value expr) :return-value)
                                 inner-body ...)))]
               [else (apply default-plugin #'make-finally-plugin method args)]))))))
 
@@ -296,9 +292,6 @@
         [(k :finally expr rest ...)
          (not (keyword? #'expr))
          (let-values ([(finally-clauses s-rest) (parse-loop-clauses-with-plugins #'(k rest ...) (plugins-for-finally-clauses))])
-           (logger :info
-                   " e = " (syntax->datum e)
-                   " s-rest = " (syntax->datum s-rest))
            (with-syntax ([ret (loop-return-value #'k)])
              (values (make-finally-plugin #'k #'expr (loop-return-value #'k) finally-clauses)
                      #'(k))))]

@@ -24,6 +24,7 @@
   (import (rnrs (6))
           (rime loop keywords)
           (for (rime loop core) expand))
+
   (define-syntax loop
     (lambda (original-e)
       (let loop ([e original-e]

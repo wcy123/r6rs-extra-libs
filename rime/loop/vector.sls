@@ -18,14 +18,11 @@
             [(recur)
              (list #'(expr-var expr))]
             [(init)
-             (list #'[var-index 0])]
-            [(loop-entry)
+             (list #'[var-index 0 (+ 1 var-index)])]
+            [(inner-if-true)
              (list #'[var (vector-ref expr-var var-index)])]
             [(continue-condition)
              #'(< var-index (vector-length expr-var))]
-            [(step)
-             (list #'(+ 1 var-index))]
-
             [else (apply default-plugin #'make-vector-plugin method args)])))))
 
   (define (loop/core/vector e)

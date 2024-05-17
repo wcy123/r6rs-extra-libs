@@ -35,7 +35,7 @@
               #'(var-collector make-hash-table)
               )]
 
-            [(loop-body)
+            [(iteration-body)
              (cons
               #'(when cond-expr
                   (hashtable-update! var-collector key
@@ -45,15 +45,16 @@
                                      (list-collector '())))
               (car args))
              ]
-            [(finally)
-             (list
+            [(pre-finally)
+             (cons
               #'(when var-collector
-                  (let-values ([(tmp-keys tmp-values) (hashtable-entries var-collector)])
-                    (vector-for-each
-                     (lambda (tmp-key tmp-value)
-                       (hashtable-set! var tmp-key ((cadr tmp-value))))
-                     tmp-keys tmp-values))
-                  (set! var-collector #f)))
+                     (let-values ([(tmp-keys tmp-values) (hashtable-entries var-collector)])
+                       (vector-for-each
+                        (lambda (tmp-key tmp-value)
+                          (hashtable-set! var tmp-key ((cadr tmp-value))))
+                        tmp-keys tmp-values))
+                     (set! var-collector #f))
+              (car args))
              ]
             [else (apply default-plugin #'make-collect-plugin method args)])))))
 
