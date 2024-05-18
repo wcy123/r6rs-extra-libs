@@ -28,19 +28,12 @@
     (let repeat ([e e]
                  [init #'(if #f 0)]
                  [weak #t])
-      (syntax-case e (:with := :count :into)
+      (syntax-case e (:with := :into)
         [(k :with var := expr rest ...)
          (identifier? #'var)
          (begin
            (values (make-with-plugin #'var #'expr init weak)
                    #'(k rest ...)))]
-        [(k :count :into var rest ...)
-         (identifier? #'var)
-         (repeat #'(k :with var := (+ 1 var) rest ...) init weak)
-         ]
-        [(k :count rest ...)
-         (with-syntax ([:return-value (loop-return-value #'k)])
-           (repeat #'(k :count :into :return-value rest ...) 0 #t))]
         [(k rest ...)
          (values #f e)
          ]))))

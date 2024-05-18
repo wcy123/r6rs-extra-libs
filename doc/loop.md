@@ -183,16 +183,43 @@ accumulate elements into a new variable other than `:return-value`.
 ## `:count`
 
 ```
-:count [:into <var>]
+:count [:into <var>] [:if <cond>] [:unless <cond>] [:when <cond>] [:by <key>] [:make-hash-table]
 ```
 
 `count` clause set the `:return-value` to the number of iteration.
 
 ```scheme
 (loop :for ch :in-string "Hello World"
-      :if (char-upper-case? ch)
-      :count) ; => 2
+      :count :if (char-upper-case? ch)) ; => 2
 ```
+
+`:by` subclause is used to count into a hash table via `<key>`
+
+```scheme
+(define (sorted-ht ht)
+    (map
+     (lambda (k)
+       (cons k (hashtable-ref ht k #t)))
+     (list-sort char<? (vector->list (hashtable-keys ht)))))
+(sorted-ht
+   (loop :for ch :in-string "Hello World"
+      :count :by ch))
+
+;; => ((#\space . 1) (#\H . 1) (#\W . 1) (#\d . 1) (#\e . 1) (#\l . 3) (#\o . 2) (#\r . 1))
+
+(define (sorted-ht ht)
+    (map
+     (lambda (k)
+       (cons k (hashtable-ref ht k #t)))
+     (list-sort string<? (vector->list (hashtable-keys ht)))))
+
+(sorted-ht
+  (loop :for str :in (map string (string->list "Hello World"))
+      :count :by str
+             :make-hash-table (make-hashtable string-hash string=?)))
+;; => ((" " . 1) ("H" . 1) ("W" . 1) ("d" . 1) ("e" . 1) ("l" . 3) ("o" . 2) ("r" . 1))
+```
+
 
 Similiar to `:append` and `:collect`, `:count <expr> :into <var>` set
 the `<var>` instead of `:return-value`

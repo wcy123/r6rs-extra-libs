@@ -8,6 +8,7 @@
   (define (make-group-by-plugin props)
     (let ([s-key (assq-id ':by props #f)]
           [s-value (assq-id ':group props #f)]
+          [s-count (assq-id ':count props #f)]
           [s-var (assq-id ':into props #f)]
           [s-cond-expr (assq-id ':if props #t)]
           [s-make-hash-table (assq-id ':make-hash-table props #'(make-eq-hashtable))])
@@ -30,37 +31,53 @@
              ]
 
             [(setup)
-             (list
-              #'(var make-hash-table)
-              #'(var-collector make-hash-table)
-              )]
+             (remove
+              #f
+              (list
+               #'(var make-hash-table)
+               (cond
+                [s-count #f]
+                [else #'(var-collector make-hash-table)])
+               ))]
 
             [(iteration-body)
              (cons
-              #'(when cond-expr
-                  (hashtable-update! var-collector key
-                                     (lambda (tmp-collector)
-                                       ((car tmp-collector) value)
-                                       tmp-collector)
-                                     (list-collector '())))
+              (cond
+               [s-count
+                #'(when cond-expr
+                    (hashtable-update! var
+                                       key
+                                       (lambda (pre)
+                                         (fx+ pre 1))
+                                       0))
+                ]
+               [else
+                #'(when cond-expr
+                    (hashtable-update! var-collector key
+                                       (lambda (tmp-collector)
+                                         ((car tmp-collector) value)
+                                         tmp-collector)
+                                       (list-collector '())))])
               (car args))
              ]
             [(pre-finally)
-             (cons
-              #'(when var-collector
-                     (let-values ([(tmp-keys tmp-values) (hashtable-entries var-collector)])
-                       (vector-for-each
-                        (lambda (tmp-key tmp-value)
-                          (hashtable-set! var tmp-key ((cadr tmp-value))))
-                        tmp-keys tmp-values))
-                     (set! var-collector #f))
-              (car args))
-             ]
+             (cond
+              [s-count (car args)]
+              [else
+               (cons
+               #'(when var-collector
+                   (let-values ([(tmp-keys tmp-values) (hashtable-entries var-collector)])
+                     (vector-for-each
+                      (lambda (tmp-key tmp-value)
+                        (hashtable-set! var tmp-key ((cadr tmp-value))))
+                      tmp-keys tmp-values))
+                   (set! var-collector #f))
+               (car args))])]
             [else (apply default-plugin #'make-collect-plugin method args)])))))
 
   (define (loop/core/group-by original-e)
     (let loop ([e original-e])
-      (syntax-case e (:group :by :if :when :unless :into :make-hash-table)
+      (syntax-case e (:count :group :by :if :when :unless :into :make-hash-table)
         [(k :group expr :by key rest ...)
          (with-syntax ([return-value (loop-return-value #'k)])
            (loop #'(k (:group (:group . expr) (:by . key) (:into . return-value))
