@@ -10,7 +10,8 @@
 
   (define-test
     test-break
-    (CHECK equal? (loop :for i :upfrom 0 :to 10
+    (CHECK equal? (loop :trace-parser :trace-codegen
+                        :for i :upfrom 0 :to 10
                         :with i+ := (fx+ 1 i)
                         :with i++ := (fx+ 1 i+)
                         :break
@@ -31,7 +32,7 @@
                         :break i++)
            2)
 
-    (CHECK equal? (loop :for i :upfrom 0 :to 10
+    (CHECK equal? (loop :trace-parser :trace-codegen :for i :upfrom 0 :to 10
                         :with i+ := (+ 1 i)
                         :with i++ := (+ 1 i+)
                         :collect i++

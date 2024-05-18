@@ -32,8 +32,7 @@
   (define-test
     test-initially-more-vars-exprs
     (let ()
-      (CHECK equal? (loop :initially
-                          := (list "something")
+      (CHECK equal? (loop :initially := (list "something")
                           characters := '(d e f)
                           numbers := '(1 2 3)
                           :for ch :in characters

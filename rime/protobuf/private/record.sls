@@ -37,10 +37,10 @@
      (r-proto-s-define-proto r-proto)
      (string->symbol
       (apply string-append
-             (loop :initially sep := "" :for name :in (r-proto-lib-name* r-proto)
+             (loop :for name :in (r-proto-lib-name* r-proto)
                    :collect sep
                    :collect (symbol->string name)
-                   :with sep := "-")))))
+                   :with sep := "-" :initially "")))))
 
   (define-record-type r-proto
     (fields lib-name              ; and id for debugger purpose
@@ -87,11 +87,10 @@
              (fields ...))
             (let ([name #'(package ... message-name)])
               (with-syntax ([full-name (apply construct-name define-proto
-                                              (loop :initially seq := ""
-                                                    :for n :in #'(package ... message-name)
+                                              (loop :for n :in #'(package ... message-name)
                                                     :collect seq
                                                     :collect n
-                                                    :with seq := "-"))])
+                                                    :with seq := "-" :initially ""))])
                 (with-syntax ([s-handle
                                (construct-name #'full-name 'handle- #'full-name)]
                               [s-record
