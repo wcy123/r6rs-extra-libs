@@ -7,11 +7,11 @@
           (rime string __string-find-all))
 
   (define (string-split seperator string)
-    (loop :trace-codegen :initially step := 1 start := 0
+    (loop :trace-parser :trace-codegen
           :for offset :upfrom 0 :below (string-length string) :by step
           :with seperator-found? := (string-starts-with seperator offset string)
           :collect (substring string start offset) :if seperator-found?
-          :with step := (if seperator-found? (string-length seperator) 1)
-          :with start := (if seperator-found? (fx+ offset step) start)
+          :with step := (if seperator-found? (string-length seperator) 1) :initially 1
+          :with start := (if seperator-found? (fx+ offset step) start) :initially 0
           :finally :collect (substring string start (string-length string))
           )))

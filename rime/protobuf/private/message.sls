@@ -54,8 +54,7 @@
     (string->symbol
      (apply
       string-append
-      (loop :initially sep := ""
-            :for t :in type
+      (loop :for t :in type
             :collect sep
             :collect (symbol->string t)
-            :with sep := "-")))))
+            :with sep := "-" :initially "")))))

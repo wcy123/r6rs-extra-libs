@@ -21,6 +21,8 @@
    :hash-table
    :make-hash-table
    :group
+   :recur
+   :then
    assq-id
    new-sym
    keyword?
@@ -100,6 +102,8 @@
   (define-keyword :hash-table)
   (define-keyword :make-hash-table)
   (define-keyword :group)
+  (define-keyword :recur)
+  (define-keyword :then)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -161,6 +165,8 @@
              (syntax :hash-table)
              (syntax :make-hash-table)
              (syntax :group)
+             (syntax :recur)
+             (syntax :then)
              )))
 
   (define (keyword=? k1 k2)
@@ -255,8 +261,21 @@
   (define (loop-return-value e)
     (new-sym e ':return-value))
 
-  (define (assq-id id prop-list default)
-    (cond
-     [(assp (lambda (k)
-                  (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
-     [else default])))
+  (define assq-id
+    (case-lambda
+      [(id prop-list)
+       (cond
+        [(assp (lambda (k)
+                 (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
+        [else (raise
+               (make-who-condition 'assp-id)
+               (make-message-condition "cannot find required value")
+               (make-irritants-condition
+                (list (cons 'id  id) (cons 'prop-list prop-list)))
+               )])]
+      [(id prop-list default)
+       (cond
+        [(assp (lambda (k)
+                 (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
+        [else default])])
+    ))

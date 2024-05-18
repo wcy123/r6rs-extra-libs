@@ -20,6 +20,8 @@
           :hash-table
           :make-hash-table
           :group
+          :recur
+          :then
           )
   (import (rnrs (6))
           (rime loop keywords)

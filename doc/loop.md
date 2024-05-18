@@ -421,9 +421,30 @@ more examples,
 ;;  2 (2 . 2))
 ```
 
+## `:recur` clauses
 
+Very similiar to `do` in scheme.
+
+```scheme
+:recur <var> := <value> :then <step>
+```
+
+it expands to
+
+```
+(let <recur-name> ((<var> <value>))
+   (<recur-name) <step>)
+```
+
+To calculate fibonacci
+```scheme
+(loop :repeat 10
+      :recur x0 := 0 :then x
+      :recur x := 1 :then (fx+ x0 x)
+      :collect x)
+;; => (1 1 2 3 5 8 13 21 34 55)
+```
 ## named loop
-
 
 A loop expression can be named with `:named` keyword, similiar to
 named `let` expression. The `(loop :name recur :for i :in '(1 2 3)
@@ -435,7 +456,6 @@ named `let` expression. The `(loop :name recur :for i :in '(1 2 3)
        ....
       (recur (cdr i))))
 ```
-
 
 so that we can implement `deep-flatten` as below,
 

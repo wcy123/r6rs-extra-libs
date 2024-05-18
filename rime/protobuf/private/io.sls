@@ -71,8 +71,7 @@
         (if (fx=? msb-loss MSB_LOSS_MASK)
             (fx+ lsb (fxarithmetic-shift (fx- valid-msb MAX_MSB) 56))
             (fx+ lsb (fxarithmetic-shift valid-msb 56)))))
-    (loop :initially acc := (cons 0 0)
-          :for n :upfrom 0 :by 7
+    (loop :for n :upfrom 0 :by 7
           :with pos := (if (port-has-port-position? port)
                            (port-position port)
                            'N/A)
@@ -107,7 +106,7 @@
                        " new-acc = " new-acc
                        " stop = " stop?
                        "\n"))
-          :with acc := new-acc
+          :with acc := new-acc :initially (cons 0 0)
           :break :if stop?
           :finally (let ([ret (return acc)])
                      (and #f (logger :trace " acc = " acc " ret = " ret))
