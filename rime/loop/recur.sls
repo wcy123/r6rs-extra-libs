@@ -21,8 +21,10 @@
               " := " (syntax->datum #'expr)
               " :then " (syntax->datum #'then)
               )]
+            [(recur)
+             (list #'(var expr))]
             [(iteration)
-             (list #'(var expr then))]
+             (list #'(var var then))]
 
             [else (apply default-plugin #'make-recur-plugin method args)])))))
 

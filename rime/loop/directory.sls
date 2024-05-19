@@ -24,9 +24,9 @@
               " :in-directory " (syntax->datum #'expr)
               )]
             [(recur)
-             (list #'[expr-recur-var (directory-list expr)])]
+             (list #'[expr-recur-var expr])]
             [(iteration)
-             (list #'[expr-loop-var expr-recur-var (cdr expr-loop-var)])]
+             (list #'[expr-loop-var (directory-list expr-recur-var) (cdr expr-loop-var)])]
             [(inner-if-true)
              (list #'[var (car expr-loop-var)])]
             [(continue-condition)

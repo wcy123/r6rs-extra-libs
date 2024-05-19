@@ -271,10 +271,11 @@
         [(assp (lambda (k)
                  (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
         [else (raise
-               (make-who-condition 'assp-id)
-               (make-message-condition "cannot find required value")
-               (make-irritants-condition
-                (list (cons 'id  id) (cons 'prop-list prop-list)))
+               (condition
+                (make-who-condition 'assp-id)
+                (make-message-condition "cannot find required value")
+                (make-irritants-condition
+                 (list (cons 'id  id) (cons 'prop-list prop-list))))
                )])]
       [(id prop-list default)
        (cond
