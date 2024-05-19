@@ -21,14 +21,15 @@
               " := " (syntax->datum #'expr)
               " :then " (syntax->datum #'then)
               )]
+            [(recur)
+             (list #'(var expr))]
             [(iteration)
-             (list #'(var expr then))]
+             (list #'(var var then))]
 
             [else (apply default-plugin #'make-recur-plugin method args)])))))
 
   (define (loop/core/recur original-e)
     (let loop ([e original-e])
-      (logger :info "e = " (syntax->datum e))
       (syntax-case e (:recur := :then :into :expr)
         [(k :recur var := expr  rest ...)
          (identifier? #'var)

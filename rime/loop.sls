@@ -22,6 +22,7 @@
           :group
           :recur
           :then
+          :in-directory
           )
   (import (rnrs (6))
           (rime loop keywords)

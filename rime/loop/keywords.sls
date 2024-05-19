@@ -23,6 +23,7 @@
    :group
    :recur
    :then
+   :in-directory
    assq-id
    new-sym
    keyword?
@@ -104,6 +105,7 @@
   (define-keyword :group)
   (define-keyword :recur)
   (define-keyword :then)
+  (define-keyword :in-directory)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -167,6 +169,7 @@
              (syntax :group)
              (syntax :recur)
              (syntax :then)
+             (syntax :in-directory)
              )))
 
   (define (keyword=? k1 k2)
@@ -268,10 +271,11 @@
         [(assp (lambda (k)
                  (free-identifier=? (datum->syntax #'assp-id id) k)) prop-list) => cdr]
         [else (raise
-               (make-who-condition 'assp-id)
-               (make-message-condition "cannot find required value")
-               (make-irritants-condition
-                (list (cons 'id  id) (cons 'prop-list prop-list)))
+               (condition
+                (make-who-condition 'assp-id)
+                (make-message-condition "cannot find required value")
+                (make-irritants-condition
+                 (list (cons 'id  id) (cons 'prop-list prop-list))))
                )])]
       [(id prop-list default)
        (cond
