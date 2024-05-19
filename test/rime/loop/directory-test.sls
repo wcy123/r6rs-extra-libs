@@ -22,8 +22,7 @@
     (CHECK equal?
            (list-sort
             string<=?
-            (loop :trace-codegen
-                  :name recur
+            (loop :name recur
                   :recur level := 0
                   :for file :in-directory "test"
                   :with is-dir := (is-directory? file)
