@@ -23,6 +23,7 @@
    :group
    :recur
    :then
+   :in-directory
    assq-id
    new-sym
    keyword?
@@ -104,6 +105,7 @@
   (define-keyword :group)
   (define-keyword :recur)
   (define-keyword :then)
+  (define-keyword :in-directory)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -167,6 +169,7 @@
              (syntax :group)
              (syntax :recur)
              (syntax :then)
+             (syntax :in-directory)
              )))
 
   (define (keyword=? k1 k2)

@@ -24,6 +24,7 @@
           (rime loop join-string)
           (rime loop group-by)
           (rime loop count)
+          (rime loop directory)
           )
 
   (define (all-plugins)
@@ -43,7 +44,8 @@
           (cons 'loop/core/loop loop/core/loop)
           (cons 'loop/core/join-string loop/core/join-string)
           (cons 'loop/core/group-by loop/core/group-by)
-          (cons 'loop/core/count loop/core/count)))
+          (cons 'loop/core/count loop/core/count)
+          (cons 'loop/core/directory loop/core/directory)))
   (define (plugins-for-finally-clauses)
     (list (cons 'loop/core/do loop/core/do)
           (cons 'loop/core/with loop/core/with)
