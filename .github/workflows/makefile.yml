@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+   Run-on-Ubuntu:
 
     runs-on: ubuntu-latest
 
@@ -17,14 +17,36 @@ jobs:
       with:
          submodules: 'true'
 
-    - name: Install chezscheme
+    - name: Install chezscheme and guile
       run: sudo apt-get install -y chezscheme guile-3.0
 
     - name: make
       run: make
 
+    - name: test with chez
+      run: make test-chez
+
     - name: test with guile
       run: make test-guile
 
+   Run-on-Macos:
+
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+         submodules: 'true'
+
+    - name: Install chezscheme and guile
+      run: brew install chezscheme guile
+
+    - name: make
+      run: make
+
     - name: test with chez
       run: make test-chez
+
+    - name: test with guile
+      run: make test-guile
