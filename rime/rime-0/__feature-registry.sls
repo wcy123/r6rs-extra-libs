@@ -43,6 +43,8 @@
           [(i3le ti3le a6le ta6le ppc32le tppc32le arm32le tarm32le arm64le tarm64le rv64le trv64le la64le tla64le)
            #t]
           [else #f]))]
+     [(import-spec-exists? '(guile))
+      (string=? (eval '(utsname:sysname (uname)) (environment '(guile))) "Linux")]
      [else #f]))
 
   (define feature-registry
