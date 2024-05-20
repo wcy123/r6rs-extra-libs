@@ -12,22 +12,22 @@
     test-print-darwin-windows-linux
     (cond-expand
      [darwin
-      (logger :info "hello darwin")]
+      (logger :info "hello OS=darwin")]
      [windows
-      (logger :info "hello windows")]
+      (logger :info "hello OS=windows")]
      [linux
-      (logger :info "hello linux")]
+      (logger :info "hello OS=linux")]
      [else
-      (logger :info "hello unknown system")]
+      (logger :info "hello OS=UNKNOWN")]
      ))
 
   (define-test
     test-print-imp
     (cond-expand
      [guile
-      (logger :info "hello guile")]
+      (logger :info "hello SCHEME=guile")]
      [chezscheme
-      (logger :info "hello chezscheme")]
+      (logger :info "hello SCHEME=chezscheme")]
      [else
-      (logger :info "hello unknown implementation")]
+      (logger :info "hello SCHEME=UNKNOWN")]
      )))
