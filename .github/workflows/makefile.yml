@@ -40,7 +40,7 @@ jobs:
          submodules: 'true'
 
     - name: Install chezscheme and guile
-      run: brew install -y chezscheme guile-3.0
+      run: brew install chezscheme guile-3.0
 
     - name: make
       run: make
