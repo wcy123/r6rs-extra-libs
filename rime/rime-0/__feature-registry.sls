@@ -4,24 +4,54 @@
   (import (rnrs (6))
           (rnrs eval (6)))
 
-  (define-syntax import-spec-exists?
-    (syntax-rules ()
-      [(_ import-spec)
-       (guard
-           (exn
-            [else #f])
-         (eval #t (environment import-spec)))]))
+  (define (import-spec-exists? import-spec)
+    (guard
+        (exn
+         [else #f])
+      (eval #t (environment import-spec))))
 
-  (define-syntax define-feature-if-import-set
-    (syntax-rules ()
-      [(_ feature-id import-spec)
-       (cons (quote feature-id)
-             (import-spec-exists? 'import-spec))]))
+  (define (define-feature-if-import-set feature-id import-spec)
+    (cons feature-id (import-spec-exists? import-spec)))
+
+  (define (check-window-is-available)
+    (cond
+     [(import-spec-exists? '(chezscheme))
+      (let ([machine-type ((eval 'machine-type (environment '(chezscheme))))])
+        (case machine-type
+          [(i3nt ti3nt a6nt ta6nt arm64nt tarm64nt) #t]
+          [else #f]))]
+     [else #f]))
+
+  (define (check-darwin-is-available)
+    (cond
+     [(import-spec-exists? '(chezscheme))
+      (let ([machine-type ((eval 'machine-type (environment '(chezscheme))))])
+        (case machine-type
+          [(i3osx ti3osx a6osx  ta6osx ppc32osx tppc32osx arm64osx tarm64osx)
+           #t]
+          [else #f]))]
+
+     [(import-spec-exists? '(guile))
+      (string=? (eval '(utsname:sysname (uname)) (environment '(guile))) "Darwin")]
+     [else #f]))
+
+  (define (check-linux-is-available)
+    (cond
+     [(import-spec-exists? '(chezscheme))
+      (let ([machine-type ((eval 'machine-type (environment '(chezscheme))))])
+        (case machine-type
+          [(i3le ti3le a6le ta6le ppc32le tppc32le arm32le tarm32le arm64le tarm64le rv64le trv64le la64le tla64le)
+           #t]
+          [else #f]))]
+     [else #f]))
 
   (define feature-registry
     (list
-     (define-feature-if-import-set guile (guile))
-     (define-feature-if-import-set chezscheme (chezscheme))
+     (define-feature-if-import-set 'guile '(guile))
+     (define-feature-if-import-set 'chezscheme '(chezscheme))
+     (cons 'windows (check-window-is-available))
+     (cons 'darwin (check-darwin-is-available))
+     (cons 'linux (check-linux-is-available))
      ))
 
   (define (check-feature feature-id)
