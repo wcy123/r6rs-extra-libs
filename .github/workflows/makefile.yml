@@ -62,10 +62,11 @@ jobs:
         shell: pwsh
         run: |
           Invoke-WebRequest https://github.com/cisco/ChezScheme/releases/download/v10.0.0/ChezScheme10.0.0.exe -OutFile ChezScheme10.0.0.exe
-          ./ChezScheme10.0.0.exe
+          ./ChezScheme10.0.0.exe /install /log log.txt
+          cat log.txt
 
       - name: where is scheme
-        run: dir "c:\Program Files\Chez Scheme 10.0.0\bin\ta6nt"
+        run: dir "c:\Program Files\Chez Scheme 10.0.0"
 
       - name: test with chez
         run: |
