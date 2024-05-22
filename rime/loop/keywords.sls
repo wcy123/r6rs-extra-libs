@@ -24,6 +24,7 @@
    :recur
    :then
    :in-directory
+   :reverse
    assq-id
    new-sym
    keyword?
@@ -106,6 +107,7 @@
   (define-keyword :recur)
   (define-keyword :then)
   (define-keyword :in-directory)
+  (define-keyword :reverse)
 
   (define (keyword? e)
     (exists (lambda (keyword)
@@ -170,6 +172,7 @@
              (syntax :recur)
              (syntax :then)
              (syntax :in-directory)
+             (syntax :reverse)
              )))
 
   (define (keyword=? k1 k2)

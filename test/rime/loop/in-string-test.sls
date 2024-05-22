@@ -12,7 +12,16 @@
     (CHECK equal? (loop :for ch :in-string "HELLO"
                         :collect ch)
            (string->list "HELLO"))
+    (CHECK equal? (loop :for ch :in-string "HELLO"
+                        :reverse
+                        :collect ch)
+           (string->list "OLLEH"))
     (CHECK equal? (loop :for ch :in-string "HELLO" :offset 1
                         :collect ch)
            (string->list "ELLO"))
+
+    (CHECK equal? (loop :for ch :in-string "HELLO" :offset 1
+                        :reverse
+                        :collect ch)
+           (string->list "LLEH"))
     ))
