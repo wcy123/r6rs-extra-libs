@@ -59,4 +59,7 @@ jobs:
           submodules: "true"
 
       - name: Install chezscheme
-        run: brew install chezscheme guile
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/cisco/ChezScheme/releases/download/v10.0.0/ChezScheme10.0.0.exe -OutFile ChezScheme10.0.0.exe
+          Invoke-Command  -ScriptBlock ChezScheme10.0.0.exe
