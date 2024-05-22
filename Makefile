@@ -1,6 +1,6 @@
 CHEZ := $(shell which scheme || which chez || which chezscheme)
 
-RUN_CHEZ := $(CHEZ) --compile-imported-libraries --libdirs .::build/chezscheme --program
+RUN_CHEZ := "$(CHEZ)" --compile-imported-libraries --libdirs .::build/chezscheme --program
 RUN_GUILE := guile --r6rs -L .
 SHELL := /bin/bash
 TEST_CASES := $(patsubst test/%.sls, %, \

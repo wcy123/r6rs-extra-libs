@@ -65,4 +65,4 @@ jobs:
           ./ChezScheme10.0.0.exe
 
       - name: test with chez
-        run: make test-chez
+        run: make CHEZ="C:\Program Files\Chez Scheme 10.0.0\bin\ta6nt\scheme.exe" test-chez
