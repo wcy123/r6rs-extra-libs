@@ -1,8 +1,15 @@
-CHEZ := $(shell which scheme || which chez || which chezscheme)
+ifneq (,$(findstring C:, $(SystemRoot)))
+  SEP := ";"
+  CHEZ := scheme
+else
+  SEP := ":"
+  CHEZ := $(shell which scheme || which chez || which chezscheme)
+endif
 
-RUN_CHEZ := $(CHEZ) --compile-imported-libraries --libdirs .::build/chezscheme --program
+RUN_CHEZ := "$(CHEZ)" --compile-imported-libraries --libdirs .$(SEP)$(SEP)build/chezscheme --program
 RUN_GUILE := guile --r6rs -L .
 SHELL := /bin/bash
+
 TEST_CASES := $(patsubst test/%.sls, %, \
 	    $(wildcard test/*-test.sls \
 	               test/*/*-test.sls \
@@ -23,7 +30,7 @@ define test_rule
 
 .PHONY: test-$(2)/$(1)
 test-$(2)/$(1):
-	@echo "[ " test-$(2)/$(1)  " ] started "; $(3) test $(subst /, ,$(1))
+	@echo "[ " test-$(2)/$(1)  " ] started " && $(3) test $(subst /, ,$(1))
 
 test-$2: test-$(2)/$(1)
 
