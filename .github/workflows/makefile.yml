@@ -67,6 +67,7 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/cisco/ChezScheme/releases/download/v10.0.0/ChezScheme10.0.0.exe -OutFile ChezScheme10.0.0.exe
           dir .
+          gci env:* | sort-object name
           Start-Process -Wait -FilePath ".\ChezScheme10.0.0.exe" -ArgumentList "/S /log log.txt"  -PassThru
           cat log.txt
 
