@@ -71,9 +71,6 @@ jobs:
           Start-Process -Wait -FilePath ".\ChezScheme10.0.0.exe" -ArgumentList "/S /log log.txt"  -PassThru
           cat log.txt
 
-      - name: where is scheme
-        run: dir "c:\Program Files\Chez Scheme 10.0.0"
-
       - name: test with chez
         run: |
           $env:Path += ';c:\Program Files\Chez Scheme 10.0.0\bin\ta6nt'
