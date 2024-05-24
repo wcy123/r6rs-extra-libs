@@ -37,6 +37,10 @@ jobs:
         with:
           submodules: "true"
 
+      - name: Configure git on Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: git config --global core.autocrlf false
+      
       - name: Install chezscheme and guile
         run: brew install chezscheme guile
 
@@ -63,7 +67,7 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/cisco/ChezScheme/releases/download/v10.0.0/ChezScheme10.0.0.exe -OutFile ChezScheme10.0.0.exe
           dir .
-          Start-Process -Wait -FilePath ".\ChezScheme10.0.0.exe" -ArgumentList "/log log.txt"  -PassThru
+          Start-Process -Wait -FilePath ".\ChezScheme10.0.0.exe" -ArgumentList "/S /log log.txt"  -PassThru
           cat log.txt
 
       - name: where is scheme
