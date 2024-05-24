@@ -6,7 +6,7 @@ else
   CHEZ := $(shell which scheme || which chez || which chezscheme)
 endif
 
-RUN_CHEZ := "$(CHEZ)" --compile-imported-libraries --libdirs .::build/chezscheme --program
+RUN_CHEZ := "$(CHEZ)" --compile-imported-libraries --libdirs .$(SEP)$(SEP)build/chezscheme --program
 RUN_GUILE := guile --r6rs -L .
 SHELL := /bin/bash
 

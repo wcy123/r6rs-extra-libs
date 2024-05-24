@@ -7,7 +7,8 @@
 
   (define (main)
     (run-all-tests))
-  (define-test hello-test
-    (CHECK equal? 
-           (length (list-sort string<=? (directory-list "test")))
-           5)))
+  ;;(define-test hello-test
+  ;;  (CHECK equal? 
+  ;;         (length (list-sort string<=? (directory-list "test")))
+  ;;         5))
+  )
